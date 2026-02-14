@@ -1,24 +1,65 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, Trash2 } from "lucide-react";
+import { Send, Bot, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 
+const WELCOME = "¡Qué tal, causa! 💪 Soy tu Coach IA de JOSE DIAZ SCAN. Pregúntame sobre nutrición, macros, o dime qué comiste hoy y te doy feedback brutal. ¡La grasa no negocia, tú tampoco! 🔥";
+
 const Coach = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "¡Qué tal, causa! 💪 Soy tu Coach IA de JOSE DIAZ SCAN. Pregúntame sobre nutrición, macros, o dime qué comiste hoy y te doy feedback brutal. ¡La grasa no negocia, tú tampoco! 🔥" },
+    { role: "assistant", content: WELCOME },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userContext, setUserContext] = useState<Record<string, any> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Fetch user profile + today's log for context
+  useEffect(() => {
+    if (!user) return;
+    const fetchContext = async () => {
+      const today = new Date().toISOString().split("T")[0];
+
+      const [profileRes, logRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("daily_logs").select("*").eq("user_id", user.id).eq("date", today).maybeSingle(),
+      ]);
+
+      const p = profileRes.data;
+      const l = logRes.data;
+
+      if (p) {
+        setUserContext({
+          weight: p.weight_kg,
+          age: p.age,
+          sex: p.sex,
+          targetCalories: p.target_calories,
+          targetProtein: p.target_protein,
+          targetCarbs: p.target_carbs,
+          targetFat: p.target_fat,
+          activityLevel: p.activity_level,
+          consumedCalories: l?.total_calories || 0,
+          protein: l?.total_protein || 0,
+          carbs: l?.total_carbs || 0,
+          fat: l?.total_fat || 0,
+        });
+      }
+    };
+    fetchContext();
+  }, [user]);
 
   const send = async () => {
     if (!input.trim() || loading) return;
@@ -50,13 +91,13 @@ const Coach = () => {
         },
         body: JSON.stringify({
           messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+          userContext,
         }),
       });
 
       if (!resp.ok) {
         const errData = await resp.json().catch(() => null);
-        const errMsg = errData?.error || `Error ${resp.status}`;
-        toast.error(errMsg);
+        toast.error(errData?.error || `Error ${resp.status}`);
         setLoading(false);
         return;
       }
@@ -131,7 +172,11 @@ const Coach = () => {
             </div>
             <div>
               <h2 className="font-display text-lg tracking-wide text-foreground">COACH IA</h2>
-              <p className="text-xs text-muted-foreground">Entrenador nutricional 🇵🇪</p>
+              <p className="text-xs text-muted-foreground">
+                {userContext
+                  ? `${userContext.consumedCalories}/${userContext.targetCalories} kcal hoy`
+                  : "Entrenador nutricional 🇵🇪"}
+              </p>
             </div>
           </div>
           <Button
@@ -156,14 +201,20 @@ const Coach = () => {
                   : "border border-border bg-card text-foreground"
               }`}
             >
-              {m.content}
+              {m.role === "assistant" ? (
+                <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_li]:my-0.5">
+                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                </div>
+              ) : (
+                m.content
+              )}
             </div>
           </div>
         ))}
-        {loading && !messages[messages.length - 1]?.content && (
+        {loading && messages[messages.length - 1]?.role === "user" && (
           <div className="flex justify-start">
-            <div className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground animate-pulse">
-              Pensando... 🔥
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" /> Pensando... 🔥
             </div>
           </div>
         )}
