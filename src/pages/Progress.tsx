@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import profileBg from "@/assets/profile-bg.jpg";
 
 type ProgressPhoto = {
@@ -14,6 +14,7 @@ type ProgressPhoto = {
   week_number: number;
   notes: string | null;
   weight_kg: number | null;
+  body_fat_percent: number | null;
   created_at: string;
 };
 
@@ -156,6 +157,16 @@ const Progress = () => {
       }
       const result = await resp.json();
       setBodyFatResult(result);
+      
+      // Save body fat % to database
+      if (result.bodyFatPercent) {
+        await supabase
+          .from("progress_photos" as any)
+          .update({ body_fat_percent: result.bodyFatPercent } as any)
+          .eq("id", photo.id);
+        // Update local state
+        setPhotos(prev => prev.map(p => p.id === photo.id ? { ...p, body_fat_percent: result.bodyFatPercent } : p));
+      }
     } catch {
       toast.error("Error conectando con el análisis");
     } finally {
@@ -250,6 +261,62 @@ const Progress = () => {
             {targetCalories > 0 && <div className="flex items-center gap-1"><div className="h-0.5 w-4 border-t-2 border-dashed border-destructive" />Meta diaria</div>}
           </div>
         </motion.div>
+
+        {/* Body Fat Evolution Chart */}
+        {(() => {
+          const bfData = [...photos]
+            .filter(p => p.body_fat_percent != null)
+            .sort((a, b) => a.week_number - b.week_number)
+            .map(p => ({ week: `S${p.week_number}`, percent: Number(p.body_fat_percent) }));
+          
+          if (bfData.length >= 1) {
+            return (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 rounded-lg border border-primary/30 bg-card/90 backdrop-blur-sm p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Percent className="h-5 w-5 text-primary" />
+                  <p className="font-display text-lg tracking-wide text-foreground">EVOLUCIÓN % GRASA</p>
+                </div>
+                {bfData.length >= 2 && (
+                  <div className="mb-3 flex items-center justify-center gap-3">
+                    <div className="rounded-lg bg-background/80 px-3 py-1.5 text-center">
+                      <p className="text-[10px] text-muted-foreground">Inicio</p>
+                      <p className="text-sm font-bold text-foreground">{bfData[0].percent}%</p>
+                    </div>
+                    <div className="text-primary">→</div>
+                    <div className="rounded-lg bg-primary/10 px-3 py-1.5 text-center">
+                      <p className="text-[10px] text-primary">Actual</p>
+                      <p className="text-sm font-bold text-primary">{bfData[bfData.length - 1].percent}%</p>
+                    </div>
+                    <div className={`rounded-lg px-2 py-1.5 text-center ${bfData[bfData.length - 1].percent < bfData[0].percent ? "bg-green-500/10" : "bg-red-500/10"}`}>
+                      <p className="text-[10px] text-muted-foreground">Cambio</p>
+                      <p className={`text-sm font-bold ${bfData[bfData.length - 1].percent < bfData[0].percent ? "text-green-400" : "text-red-400"}`}>
+                        {(bfData[bfData.length - 1].percent - bfData[0].percent).toFixed(1)}%
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={bfData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="week" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                      <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} domain={['auto', 'auto']} />
+                      <Tooltip
+                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", color: "hsl(var(--foreground))", fontSize: 12 }}
+                        formatter={(value: number) => [`${value}%`, "Grasa corporal"]}
+                      />
+                      <Line type="monotone" dataKey="percent" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: "hsl(var(--primary))", r: 4 }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                {bfData.length === 1 && (
+                  <p className="mt-2 text-center text-[10px] text-muted-foreground">Analiza más fotos para ver tu evolución 📈</p>
+                )}
+              </motion.div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Compare Side by Side */}
         {compareMode && compareLeft && compareRight && (

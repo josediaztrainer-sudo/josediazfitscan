@@ -221,6 +221,7 @@ export type Database = {
       }
       progress_photos: {
         Row: {
+          body_fat_percent: number | null
           created_at: string
           id: string
           notes: string | null
@@ -230,6 +231,7 @@ export type Database = {
           weight_kg: number | null
         }
         Insert: {
+          body_fat_percent?: number | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -239,6 +241,7 @@ export type Database = {
           weight_kg?: number | null
         }
         Update: {
+          body_fat_percent?: number | null
           created_at?: string
           id?: string
           notes?: string | null
