@@ -114,7 +114,7 @@ const Paywall = () => {
       {/* Actions */}
       <div className="mt-auto space-y-3">
         <Button
-          onClick={() => window.open("https://wa.me/51960300099?text=Hola%20Jose,%20quiero%20activar%20mi%20Premium%20de%20JOSE%20DIAZ%20SCAN", "_blank")}
+          onClick={() => window.open("https://wa.me/51941193092?text=Hola%20Jose%2C%20quiero%20activar%20mi%20plan%20Premium%20de%20JOSE%20DIAZ%20SCAN.%20Adjunto%20mi%20comprobante%20de%20pago%20%F0%9F%A7%BE", "_blank")}
           className="w-full font-display text-lg tracking-wider box-glow"
           size="lg"
         >
