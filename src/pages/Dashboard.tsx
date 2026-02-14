@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp } from "lucide-react";
+import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { UserProfile, DailyLog, MealScan } from "@/lib/nutrition";
+import { toast } from "sonner";
 
 const PHRASES = [
   "ESCANEA. QUEMA. DOMINA.",
@@ -168,7 +169,28 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-2">
             {meals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
+              <MealCard key={meal.id} meal={meal} onDelete={async (id) => {
+                const m = meals.find((x) => x.id === id);
+                if (!m) return;
+                const { error } = await supabase.from("meal_scans").delete().eq("id", id);
+                if (error) { toast.error("Error eliminando comida"); return; }
+                setMeals((prev) => prev.filter((x) => x.id !== id));
+                // Update daily log
+                if (dailyLog) {
+                  const newCal = Number(dailyLog.total_calories) - Number(m.total_calories);
+                  const newP = Number(dailyLog.total_protein) - Number(m.total_protein);
+                  const newC = Number(dailyLog.total_carbs) - Number(m.total_carbs);
+                  const newF = Number(dailyLog.total_fat) - Number(m.total_fat);
+                  await supabase.from("daily_logs").update({
+                    total_calories: Math.max(0, newCal),
+                    total_protein: Math.max(0, newP),
+                    total_carbs: Math.max(0, newC),
+                    total_fat: Math.max(0, newF),
+                  }).eq("id", dailyLog.id);
+                  setDailyLog({ ...dailyLog, total_calories: Math.max(0, newCal), total_protein: Math.max(0, newP), total_carbs: Math.max(0, newC), total_fat: Math.max(0, newF) });
+                }
+                toast.success("Comida eliminada");
+              }} />
             ))}
           </div>
         )}
@@ -208,8 +230,9 @@ const MEAL_LABELS: Record<string, string> = {
   snack: "🍎 Snack",
 };
 
-const MealCard = ({ meal }: { meal: MealScan }) => {
+const MealCard = ({ meal, onDelete }: { meal: MealScan; onDelete: (id: string) => void }) => {
   const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const time = new Date(meal.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
   const foods: any[] = Array.isArray(meal.foods_json) ? meal.foods_json : [];
 
@@ -239,21 +262,31 @@ const MealCard = ({ meal }: { meal: MealScan }) => {
         </div>
       </button>
 
-      {open && foods.length > 0 && (
+      {open && (
         <div className="border-t border-border px-3 pb-3 pt-2">
-          <div className="space-y-1.5">
-            {foods.map((food, i) => (
-              <div key={i} className="flex items-center justify-between text-xs">
-                <span className="text-foreground">{food.name || food.nombre || `Alimento ${i + 1}`}</span>
-                <div className="flex gap-2 text-muted-foreground">
-                  {food.calories && <span>{food.calories} kcal</span>}
-                  {food.protein && <span className="text-protein">{food.protein}g P</span>}
-                  {food.carbs && <span className="text-carbs">{food.carbs}g C</span>}
-                  {food.fat && <span className="text-fat">{food.fat}g G</span>}
+          {foods.length > 0 && (
+            <div className="mb-2 space-y-1.5">
+              {foods.map((food, i) => (
+                <div key={i} className="flex items-center justify-between text-xs">
+                  <span className="text-foreground">{food.name || food.nombre || `Alimento ${i + 1}`}</span>
+                  <div className="flex gap-2 text-muted-foreground">
+                    {food.calories && <span>{food.calories} kcal</span>}
+                    {food.protein && <span className="text-protein">{food.protein}g P</span>}
+                    {food.carbs && <span className="text-carbs">{food.carbs}g C</span>}
+                    {food.fat && <span className="text-fat">{food.fat}g G</span>}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+          <button
+            onClick={() => { setDeleting(true); onDelete(meal.id); }}
+            disabled={deleting}
+            className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
+          >
+            <Trash2 className="h-3 w-3" />
+            {deleting ? "Eliminando..." : "Eliminar comida"}
+          </button>
         </div>
       )}
     </div>
