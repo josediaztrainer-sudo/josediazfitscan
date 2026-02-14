@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import scanBg from "@/assets/scan-bg.jpg";
 
 type FoodItem = {
   name: string;
@@ -187,7 +188,13 @@ const Scan = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 pb-24 pt-8">
+    <div className="relative min-h-screen pb-24 pt-8">
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${scanBg})` }}
+      />
+      <div className="fixed inset-0 bg-background/85" />
+      <div className="relative z-10 px-4">
       <h1 className="mb-2 text-center font-display text-3xl tracking-wider text-primary text-glow">
         ESCANEA TU COMIDA
       </h1>
@@ -327,6 +334,7 @@ const Scan = () => {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 };
