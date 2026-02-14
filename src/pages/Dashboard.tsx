@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { UserProfile, DailyLog, MealScan } from "@/lib/nutrition";
 import { toast } from "sonner";
+import dashboardBg from "@/assets/dashboard-bg.jpg";
 
 const PHRASES = [
   "ESCANEA. QUEMA. DOMINA.",
@@ -109,7 +110,14 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background px-4 pb-24 pt-6">
+    <div className="relative min-h-screen pb-24 pt-6">
+      {/* Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${dashboardBg})` }}
+      />
+      <div className="fixed inset-0 bg-background/90" />
+      <div className="relative z-10 px-4">
       {/* Trial/Premium Banner */}
       <TrialBanner />
 
@@ -194,6 +202,7 @@ const Dashboard = () => {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
