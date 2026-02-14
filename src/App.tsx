@@ -12,6 +12,7 @@ import Coach from "./pages/Coach";
 import Profile from "./pages/Profile";
 import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
 
@@ -34,6 +35,7 @@ const AppLayout = () => {
         <Route path="/coach" element={<ProtectedFeature><Coach /></ProtectedFeature>} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/paywall" element={<Paywall />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {showNav && <BottomNav />}
