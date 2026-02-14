@@ -10,8 +10,10 @@ import Dashboard from "./pages/Dashboard";
 import Scan from "./pages/Scan";
 import Coach from "./pages/Coach";
 import Profile from "./pages/Profile";
+import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
 import BottomNav from "./components/BottomNav";
+import ProtectedFeature from "./components/ProtectedFeature";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +30,10 @@ const AppLayout = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/scan" element={<Scan />} />
-        <Route path="/coach" element={<Coach />} />
+        <Route path="/scan" element={<ProtectedFeature><Scan /></ProtectedFeature>} />
+        <Route path="/coach" element={<ProtectedFeature><Coach /></ProtectedFeature>} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/paywall" element={<Paywall />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {showNav && <BottomNav />}
