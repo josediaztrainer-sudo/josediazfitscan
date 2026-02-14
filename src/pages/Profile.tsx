@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets, Target } from "lucide-react";
+import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets, Target, Crown, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { calculateTDEE, calculateMacros, GOAL_OPTIONS, type ActivityLevel, type FatLossGoal } from "@/lib/nutrition";
+import { useSubscription } from "@/hooks/useSubscription";
 import { motion } from "framer-motion";
 import profileBg from "@/assets/profile-bg.jpg";
 
@@ -136,6 +137,9 @@ const Profile = () => {
       <div className="fixed inset-x-0 top-0 h-[30%] bg-gradient-to-b from-background/90 to-transparent" />
 
       <div className="relative z-10 px-4 pt-8">
+        {/* Premium Banner */}
+        <ProfilePremiumBanner />
+
         <h1 className="mb-6 font-display text-3xl tracking-wider text-primary text-glow">
           MI PERFIL
         </h1>
@@ -323,6 +327,45 @@ const Profile = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const ProfilePremiumBanner = () => {
+  const { status, daysLeft } = useSubscription();
+  const navigate = useNavigate();
+
+  if (status === "loading" || status === "premium") return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`mb-4 flex items-center justify-between rounded-lg border p-3 ${
+        status === "expired"
+          ? "border-destructive/50 bg-destructive/10"
+          : "border-primary/30 bg-primary/5"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        {status === "expired" ? (
+          <Crown className="h-4 w-4 text-destructive" />
+        ) : (
+          <Clock className="h-4 w-4 text-primary" />
+        )}
+        <span className="text-xs font-medium text-foreground">
+          {status === "expired" ? "Tu prueba expiró" : `${daysLeft} días de prueba`}
+        </span>
+      </div>
+      <Button
+        size="sm"
+        variant={status === "expired" ? "default" : "outline"}
+        onClick={() => navigate("/paywall")}
+        className="h-7 text-xs font-display tracking-wider"
+      >
+        <Crown className="mr-1 h-3 w-3" />
+        HAZTE PREMIUM
+      </Button>
+    </motion.div>
   );
 };
 
