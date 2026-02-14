@@ -13,12 +13,13 @@ import Profile from "./pages/Profile";
 import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Progress from "./pages/Progress";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
 
 const queryClient = new QueryClient();
 
-const TABS = ["/dashboard", "/scan", "/coach", "/profile"];
+const TABS = ["/dashboard", "/scan", "/coach", "/progress", "/profile"];
 
 const AppLayout = () => {
   const location = useLocation();
@@ -33,6 +34,7 @@ const AppLayout = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scan" element={<ProtectedFeature><Scan /></ProtectedFeature>} />
         <Route path="/coach" element={<ProtectedFeature><Coach /></ProtectedFeature>} />
+        <Route path="/progress" element={<Progress />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/paywall" element={<Paywall />} />
         <Route path="/admin" element={<Admin />} />

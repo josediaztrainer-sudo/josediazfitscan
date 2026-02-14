@@ -219,6 +219,36 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_photos: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          photo_url: string
+          user_id: string
+          week_number: number
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url: string
+          user_id: string
+          week_number?: number
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url?: string
+          user_id?: string
+          week_number?: number
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
