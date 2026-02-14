@@ -21,13 +21,18 @@ const Login = () => {
     setLoading(true);
     try {
       if (isSignup) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("¡Cuenta creada! Revisa tu email para confirmar.");
+        if (data.session) {
+          toast.success("¡Cuenta creada! Bienvenido 💪");
+          navigate("/dashboard");
+        } else {
+          toast.success("¡Cuenta creada! Revisa tu email para confirmar.");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
