@@ -48,6 +48,9 @@ const Onboarding = () => {
     if (!user || !macros) return;
     setSaving(true);
     try {
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+
       const { error } = await supabase
         .from("profiles" as any)
         .update({
@@ -62,6 +65,7 @@ const Onboarding = () => {
           target_carbs: macros.carbsG,
           target_fat: macros.fatG,
           onboarding_completed: true,
+          trial_ends_at: trialEndsAt.toISOString(),
         })
         .eq("user_id", user.id);
       if (error) throw error;
