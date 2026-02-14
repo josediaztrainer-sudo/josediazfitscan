@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,7 @@ const Admin = () => {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const [users, setUsers] = useState<PremiumUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
 
   const handleLogin = () => {
     if (pin === ADMIN_PIN) {
@@ -291,24 +292,70 @@ const Admin = () => {
                 const expiresAt = u.trial_ends_at
                   ? new Date(u.trial_ends_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
                   : "—";
+                const handleDeactivate = async () => {
+                  setDeactivatingId(u.user_id);
+                  try {
+                    const { data: sessionData } = await supabase.auth.getSession();
+                    const token = sessionData.session?.access_token;
+                    const resp = await fetch(
+                      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deactivate-premium`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                        },
+                        body: JSON.stringify({ user_email: u.email }),
+                      }
+                    );
+                    const data = await resp.json();
+                    if (resp.ok) {
+                      toast.success(data.message);
+                      fetchUsers();
+                    } else {
+                      toast.error(data.error || "Error desactivando");
+                    }
+                  } catch {
+                    toast.error("Error de conexión");
+                  } finally {
+                    setDeactivatingId(null);
+                  }
+                };
+
                 return (
                   <div
                     key={u.user_id}
-                    className="flex items-center justify-between rounded-lg border border-border bg-background p-3"
+                    className="rounded-lg border border-border bg-background p-3"
                   >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {u.status === "premium" || u.status === "trial"
-                          ? `Vence: ${expiresAt}`
-                          : u.status === "expired"
-                          ? `Venció: ${expiresAt}`
-                          : `Registrado`}
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {u.status === "premium" || u.status === "trial"
+                            ? `Vence: ${expiresAt}`
+                            : u.status === "expired"
+                            ? `Venció: ${expiresAt}`
+                            : `Registrado`}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${cfg.className}`}>
+                        {cfg.label}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${cfg.className}`}>
-                      {cfg.label}
-                    </Badge>
+                    {(u.status === "premium" || u.status === "trial") && (
+                      <button
+                        onClick={handleDeactivate}
+                        disabled={deactivatingId === u.user_id}
+                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                      >
+                        {deactivatingId === u.user_id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <XCircle className="h-3 w-3" />
+                        )}
+                        {deactivatingId === u.user_id ? "Desactivando..." : "Desactivar Premium"}
+                      </button>
+                    )}
                   </div>
                 );
               })}
