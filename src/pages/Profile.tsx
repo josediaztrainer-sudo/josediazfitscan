@@ -40,7 +40,10 @@ const Profile = () => {
   const [macros, setMacros] = useState({ targetCalories: 0, proteinG: 0, carbsG: 0, fatG: 0 });
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setEmail(user.email || "");
 
     const fetchProfile = async () => {
