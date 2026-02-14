@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { Crown, Shield, Zap, Star, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { QRCodeSVG } from "qrcode.react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
+import yapeQr from "@/assets/yape-qr.jpeg";
 
 const FEATURES = [
   { icon: Zap, text: "Escaneo ilimitado de comidas con IA" },
@@ -91,20 +91,11 @@ const Paywall = () => {
           PAGA CON YAPE 📱
         </h3>
 
-        {/* QR placeholder - purple Yape style */}
-        <div className="mx-auto mb-4 rounded-xl bg-white p-3" style={{ width: "fit-content" }}>
-          <QRCodeSVG
-            value="https://yape.com.pe/pay?phone=960300099&amount=9.90&name=Jose+Diaz"
-            size={180}
-            level="H"
-            fgColor="#6B2D8B"
-            bgColor="#FFFFFF"
-            imageSettings={{
-              src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect fill='%236B2D8B' width='24' height='24' rx='4'/%3E%3Ctext x='12' y='17' text-anchor='middle' fill='white' font-size='12' font-weight='bold'%3EY%3C/text%3E%3C/svg%3E",
-              height: 30,
-              width: 30,
-              excavate: true,
-            }}
+        <div className="mx-auto mb-4 overflow-hidden rounded-xl" style={{ width: "fit-content" }}>
+          <img
+            src={yapeQr}
+            alt="QR de Yape - Jose Diaz 960300099"
+            className="h-52 w-52 object-contain"
           />
         </div>
         <p className="mb-1 text-center font-display text-lg tracking-wider text-foreground">960300099</p>
