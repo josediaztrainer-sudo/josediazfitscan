@@ -1,0 +1,10 @@
+{
+  "name": "JOSE DIAZ SCAN",
+  "short_name": "JD SCAN",
+  "description": "Escanea comidas con IA, controla macros, quema grasa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#FFCC00",
+  "icons": []
+}
