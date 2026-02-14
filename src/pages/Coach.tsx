@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import ReactMarkdown from "react-markdown";
+import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -173,8 +174,8 @@ const Coach = () => {
       <div className="border-b border-border bg-card px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-              <Bot className="h-4 w-4 text-primary-foreground" />
+            <div className="h-8 w-8 overflow-hidden rounded-full border border-primary">
+              <img src={joseAvatar} alt="Jose Diaz Coach" className="h-full w-full object-cover object-top" />
             </div>
             <div>
               <h2 className="font-display text-lg font-bold tracking-wider text-foreground">JOSE DIAZ COACH</h2>
