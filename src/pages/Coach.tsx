@@ -1,46 +1,147 @@
-import { useState } from "react";
-import { Send, Bot } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Send, Bot, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
+
 const Coach = () => {
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "¡Qué tal, campeón! 💪 Soy tu coach IA. Pregúntame sobre nutrición, macros, o dime qué comiste hoy y te doy feedback brutal. ¡La grasa no negocia, tú tampoco!" },
+    { role: "assistant", content: "¡Qué tal, causa! 💪 Soy tu Coach IA de JOSE DIAZ SCAN. Pregúntame sobre nutrición, macros, o dime qué comiste hoy y te doy feedback brutal. ¡La grasa no negocia, tú tampoco! 🔥" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const send = async () => {
     if (!input.trim() || loading) return;
     const userMsg: Msg = { role: "user", content: input.trim() };
-    setMessages((prev) => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
-    // TODO: connect to AI edge function
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "¡Buena pregunta, máquina! Conecta el backend para que pueda darte respuestas basadas en tu progreso real. 🔥" },
-      ]);
+    let assistantSoFar = "";
+
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && prev.length === updatedMessages.length + 1) {
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+        }
+        return [...prev, { role: "assistant", content: assistantSoFar }];
+      });
+    };
+
+    try {
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+        }),
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => null);
+        const errMsg = errData?.error || `Error ${resp.status}`;
+        toast.error(errMsg);
+        setLoading(false);
+        return;
+      }
+
+      if (!resp.body) throw new Error("No stream body");
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") { streamDone = true; break; }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) upsertAssistant(content);
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // flush remaining
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) upsertAssistant(content);
+          } catch { /* ignore */ }
+        }
+      }
+    } catch (err: any) {
+      console.error("Coach chat error:", err);
+      toast.error("Error conectando con el coach IA");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">
       {/* Header */}
       <div className="border-b border-border bg-card px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-            <Bot className="h-4 w-4 text-primary-foreground" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
+              <Bot className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="font-display text-lg tracking-wide text-foreground">COACH IA</h2>
+              <p className="text-xs text-muted-foreground">Entrenador nutricional 🇵🇪</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-display text-lg tracking-wide text-foreground">COACH IA</h2>
-            <p className="text-xs text-muted-foreground">Tu entrenador nutricional</p>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMessages([messages[0]])}
+            className="text-muted-foreground"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -49,7 +150,7 @@ const Coach = () => {
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
                 m.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : "border border-border bg-card text-foreground"
@@ -59,26 +160,28 @@ const Coach = () => {
             </div>
           </div>
         ))}
-        {loading && (
+        {loading && !messages[messages.length - 1]?.content && (
           <div className="flex justify-start">
-            <div className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
-              Pensando...
+            <div className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground animate-pulse">
+              Pensando... 🔥
             </div>
           </div>
         )}
+        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
-      <div className="border-t border-border bg-card p-3">
-        <div className="flex gap-2">
+      <div className="fixed bottom-16 left-0 right-0 border-t border-border bg-card p-3 safe-bottom">
+        <div className="mx-auto flex max-w-lg gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
             placeholder="Pregúntale a tu coach..."
             className="border-border bg-background text-foreground"
+            disabled={loading}
           />
-          <Button onClick={send} disabled={loading || !input.trim()} size="icon" className="box-glow">
+          <Button onClick={send} disabled={loading || !input.trim()} size="icon" className="box-glow shrink-0">
             <Send className="h-4 w-4" />
           </Button>
         </div>
