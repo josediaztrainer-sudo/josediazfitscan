@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -233,6 +233,7 @@ const MEAL_LABELS: Record<string, string> = {
 const MealCard = ({ meal, onDelete }: { meal: MealScan; onDelete: (id: string) => void }) => {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const time = new Date(meal.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
   const foods: any[] = Array.isArray(meal.foods_json) ? meal.foods_json : [];
 
@@ -280,13 +281,37 @@ const MealCard = ({ meal, onDelete }: { meal: MealScan; onDelete: (id: string) =
             </div>
           )}
           <button
-            onClick={() => { setDeleting(true); onDelete(meal.id); }}
+            onClick={() => setConfirmOpen(true)}
             disabled={deleting}
             className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20"
           >
             <Trash2 className="h-3 w-3" />
             {deleting ? "Eliminando..." : "Eliminar comida"}
           </button>
+
+          {confirmOpen && (
+            <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                ¿Eliminar esta comida?
+              </div>
+              <p className="mb-3 text-xs text-muted-foreground">Esta acción no se puede deshacer.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmOpen(false)}
+                  className="flex-1 rounded-md border border-border bg-background py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => { setDeleting(true); setConfirmOpen(false); onDelete(meal.id); }}
+                  className="flex-1 rounded-md bg-destructive py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
