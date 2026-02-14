@@ -207,7 +207,7 @@ const Scan = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mx-auto flex w-full max-w-sm flex-col gap-4"
+          className="mx-auto flex w-full max-w-sm flex-col gap-4 mt-[45vh]"
         >
           <Button
             onClick={() => cameraRef.current?.click()}
