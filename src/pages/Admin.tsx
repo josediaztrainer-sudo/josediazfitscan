@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,7 @@ const Admin = () => {
   const [users, setUsers] = useState<PremiumUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(null);
 
   const handleLogin = () => {
     if (pin === ADMIN_PIN) {
@@ -343,18 +344,43 @@ const Admin = () => {
                       </Badge>
                     </div>
                     {(u.status === "premium" || u.status === "trial") && (
-                      <button
-                        onClick={handleDeactivate}
-                        disabled={deactivatingId === u.user_id}
-                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
-                      >
-                        {deactivatingId === u.user_id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <XCircle className="h-3 w-3" />
+                      <>
+                        <button
+                          onClick={() => setConfirmDeactivateId(u.user_id)}
+                          disabled={deactivatingId === u.user_id}
+                          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                        >
+                          {deactivatingId === u.user_id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <XCircle className="h-3 w-3" />
+                          )}
+                          {deactivatingId === u.user_id ? "Desactivando..." : "Desactivar Premium"}
+                        </button>
+                        {confirmDeactivateId === u.user_id && (
+                          <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                            <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                              <AlertTriangle className="h-3.5 w-3.5" />
+                              ¿Desactivar premium de {u.email}?
+                            </div>
+                            <p className="mb-3 text-xs text-muted-foreground">El usuario perderá acceso a funciones premium.</p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setConfirmDeactivateId(null)}
+                                className="flex-1 rounded-md border border-border bg-background py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                onClick={() => { setConfirmDeactivateId(null); handleDeactivate(); }}
+                                className="flex-1 rounded-md bg-destructive py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                              >
+                                Sí, desactivar
+                              </button>
+                            </div>
+                          </div>
                         )}
-                        {deactivatingId === u.user_id ? "Desactivando..." : "Desactivar Premium"}
-                      </button>
+                      </>
                     )}
                   </div>
                 );
