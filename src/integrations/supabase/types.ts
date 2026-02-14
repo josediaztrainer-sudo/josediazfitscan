@@ -14,7 +14,152 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          total_calories: number
+          total_carbs: number
+          total_fat: number
+          total_protein: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          total_calories?: number
+          total_carbs?: number
+          total_fat?: number
+          total_protein?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          total_calories?: number
+          total_carbs?: number
+          total_fat?: number
+          total_protein?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meal_scans: {
+        Row: {
+          created_at: string
+          daily_log_id: string | null
+          foods_json: Json | null
+          id: string
+          meal_type: string | null
+          photo_url: string | null
+          total_calories: number
+          total_carbs: number
+          total_fat: number
+          total_protein: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_log_id?: string | null
+          foods_json?: Json | null
+          id?: string
+          meal_type?: string | null
+          photo_url?: string | null
+          total_calories?: number
+          total_carbs?: number
+          total_fat?: number
+          total_protein?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_log_id?: string | null
+          foods_json?: Json | null
+          id?: string
+          meal_type?: string | null
+          photo_url?: string | null
+          total_calories?: number
+          total_carbs?: number
+          total_fat?: number
+          total_protein?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_scans_daily_log_id_fkey"
+            columns: ["daily_log_id"]
+            isOneToOne: false
+            referencedRelation: "daily_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          activity_level: string | null
+          age: number | null
+          created_at: string
+          goal: string | null
+          height_cm: number | null
+          id: string
+          is_premium: boolean
+          onboarding_completed: boolean
+          sex: string | null
+          target_calories: number | null
+          target_carbs: number | null
+          target_fat: number | null
+          target_protein: number | null
+          trial_ends_at: string | null
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          goal?: string | null
+          height_cm?: number | null
+          id?: string
+          is_premium?: boolean
+          onboarding_completed?: boolean
+          sex?: string | null
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          activity_level?: string | null
+          age?: number | null
+          created_at?: string
+          goal?: string | null
+          height_cm?: number | null
+          id?: string
+          is_premium?: boolean
+          onboarding_completed?: boolean
+          sex?: string | null
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
