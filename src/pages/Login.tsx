@@ -96,22 +96,42 @@ const Login = () => {
           <h1 className="font-display text-5xl tracking-wider text-primary text-glow leading-none">
             JOSE DIAZ
           </h1>
-          <div className="mt-1 flex items-center justify-center gap-2">
-            {/* Laurel izquierdo */}
-            <svg viewBox="0 0 32 48" className="h-8 w-5 text-primary/80" fill="currentColor">
-              <path d="M28 4c-4 2-8 8-10 14-2-4-6-8-10-10 6 4 8 10 10 16-4-2-8-2-12 0 6 0 10 2 14 6-2 4-6 8-10 10 6-2 10-6 12-10 2 4 4 8 4 14 0-6 0-12-2-18C26 18 30 12 28 4z" />
+          <div className="mt-2 flex items-center justify-center gap-3">
+            {/* Laurel izquierdo — corona de campeón */}
+            <svg viewBox="0 0 40 80" className="h-14 w-7 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.4)]" fill="currentColor">
+              {/* Tallo */}
+              <path d="M36 78 C34 60 30 40 28 20 C27 12 30 6 34 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              {/* Hojas - de abajo hacia arriba */}
+              <ellipse cx="28" cy="68" rx="8" ry="4" transform="rotate(-30 28 68)" opacity="0.7"/>
+              <ellipse cx="26" cy="60" rx="8" ry="4" transform="rotate(-40 26 60)" opacity="0.75"/>
+              <ellipse cx="24" cy="52" rx="8" ry="3.5" transform="rotate(-45 24 52)" opacity="0.8"/>
+              <ellipse cx="23" cy="44" rx="7" ry="3.5" transform="rotate(-50 23 44)" opacity="0.85"/>
+              <ellipse cx="24" cy="36" rx="7" ry="3" transform="rotate(-55 24 36)" opacity="0.9"/>
+              <ellipse cx="26" cy="28" rx="6" ry="3" transform="rotate(-50 26 28)" opacity="0.92"/>
+              <ellipse cx="28" cy="21" rx="6" ry="2.5" transform="rotate(-40 28 21)" opacity="0.95"/>
+              <ellipse cx="30" cy="14" rx="5" ry="2.5" transform="rotate(-25 30 14)" opacity="0.97"/>
+              <ellipse cx="33" cy="8" rx="4" ry="2" transform="rotate(-10 33 8)"/>
             </svg>
-            {/* Pesa / Dumbbell */}
-            <div className="flex items-center gap-0.5">
-              <div className="h-5 w-2 rounded-sm bg-primary/90" />
-              <div className="h-3 w-1.5 rounded-sm bg-primary/70" />
-              <div className="h-1.5 w-4 rounded-full bg-primary" />
-              <div className="h-3 w-1.5 rounded-sm bg-primary/70" />
-              <div className="h-5 w-2 rounded-sm bg-primary/90" />
+            {/* Pesa / Dumbbell — más elaborada */}
+            <div className="flex items-center">
+              <div className="h-7 w-2.5 rounded-sm bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+              <div className="h-5 w-1.5 rounded-sm bg-primary/80" />
+              <div className="h-2 w-5 rounded-full bg-primary shadow-[0_0_6px_hsl(var(--primary)/0.4)]" />
+              <div className="h-5 w-1.5 rounded-sm bg-primary/80" />
+              <div className="h-7 w-2.5 rounded-sm bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
             </div>
             {/* Laurel derecho (espejado) */}
-            <svg viewBox="0 0 32 48" className="h-8 w-5 text-primary/80 -scale-x-100" fill="currentColor">
-              <path d="M28 4c-4 2-8 8-10 14-2-4-6-8-10-10 6 4 8 10 10 16-4-2-8-2-12 0 6 0 10 2 14 6-2 4-6 8-10 10 6-2 10-6 12-10 2 4 4 8 4 14 0-6 0-12-2-18C26 18 30 12 28 4z" />
+            <svg viewBox="0 0 40 80" className="h-14 w-7 text-primary -scale-x-100 drop-shadow-[0_0_6px_hsl(var(--primary)/0.4)]" fill="currentColor">
+              <path d="M36 78 C34 60 30 40 28 20 C27 12 30 6 34 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <ellipse cx="28" cy="68" rx="8" ry="4" transform="rotate(-30 28 68)" opacity="0.7"/>
+              <ellipse cx="26" cy="60" rx="8" ry="4" transform="rotate(-40 26 60)" opacity="0.75"/>
+              <ellipse cx="24" cy="52" rx="8" ry="3.5" transform="rotate(-45 24 52)" opacity="0.8"/>
+              <ellipse cx="23" cy="44" rx="7" ry="3.5" transform="rotate(-50 23 44)" opacity="0.85"/>
+              <ellipse cx="24" cy="36" rx="7" ry="3" transform="rotate(-55 24 36)" opacity="0.9"/>
+              <ellipse cx="26" cy="28" rx="6" ry="3" transform="rotate(-50 26 28)" opacity="0.92"/>
+              <ellipse cx="28" cy="21" rx="6" ry="2.5" transform="rotate(-40 28 21)" opacity="0.95"/>
+              <ellipse cx="30" cy="14" rx="5" ry="2.5" transform="rotate(-25 30 14)" opacity="0.97"/>
+              <ellipse cx="33" cy="8" rx="4" ry="2" transform="rotate(-10 33 8)"/>
             </svg>
           </div>
           <p className="mt-0.5 font-display text-2xl tracking-[0.35em] text-primary/90">
