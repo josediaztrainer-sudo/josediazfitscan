@@ -1,13 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 const ADMIN_PIN = "JD2026PRO";
+
+interface PremiumUser {
+  user_id: string;
+  email: string;
+  is_premium: boolean;
+  trial_ends_at: string | null;
+  status: string;
+  created_at: string;
+}
+
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  premium: { label: "Premium", className: "bg-primary/20 text-primary border-primary/30" },
+  trial: { label: "Prueba", className: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  expired: { label: "Expirado", className: "bg-destructive/20 text-destructive border-destructive/30" },
+  free: { label: "Free", className: "bg-muted text-muted-foreground border-border" },
+};
 
 const Admin = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -16,6 +33,8 @@ const Admin = () => {
   const [months, setMonths] = useState("1");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [users, setUsers] = useState<PremiumUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   const handleLogin = () => {
     if (pin === ADMIN_PIN) {
@@ -24,6 +43,38 @@ const Admin = () => {
       toast.error("PIN incorrecto");
     }
   };
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-premium-users`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+        }
+      );
+      const data = await resp.json();
+      if (resp.ok) {
+        setUsers(data.users || []);
+      } else {
+        toast.error(data.error || "Error cargando usuarios");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticated) fetchUsers();
+  }, [authenticated]);
 
   const handleActivate = async () => {
     const trimmedEmail = email.trim().toLowerCase();
@@ -60,6 +111,7 @@ const Admin = () => {
         setResult({ success: true, message: data.message });
         toast.success(data.message);
         setEmail("");
+        fetchUsers(); // Refresh list
       }
     } catch (err: any) {
       toast.error("Error de conexión");
@@ -112,13 +164,14 @@ const Admin = () => {
         <p className="mt-1 text-xs text-muted-foreground">Activar suscripciones Premium</p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mx-auto w-full max-w-md space-y-5"
-      >
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+      <div className="mx-auto w-full max-w-md space-y-5">
+        {/* Activate Premium Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-xl border border-border bg-card p-5 space-y-4"
+        >
           <div className="flex items-center gap-2 text-primary">
             <Crown className="h-5 w-5" />
             <h2 className="font-display text-lg tracking-wider">ACTIVAR PREMIUM</h2>
@@ -174,7 +227,7 @@ const Admin = () => {
               <><Crown className="mr-2 h-4 w-4" /> ACTIVAR PREMIUM</>
             )}
           </Button>
-        </div>
+        </motion.div>
 
         {result && (
           <motion.div
@@ -198,7 +251,71 @@ const Admin = () => {
             </div>
           </motion.div>
         )}
-      </motion.div>
+
+        {/* Users List Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="rounded-xl border border-border bg-card p-5 space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-primary">
+              <Users className="h-5 w-5" />
+              <h2 className="font-display text-lg tracking-wider">USUARIOS</h2>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                {users.length}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={fetchUsers}
+              disabled={loadingUsers}
+              className="h-8 w-8"
+            >
+              <RefreshCw className={`h-4 w-4 ${loadingUsers ? "animate-spin" : ""}`} />
+            </Button>
+          </div>
+
+          {loadingUsers && users.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : users.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-4">No hay usuarios registrados</p>
+          ) : (
+            <div className="space-y-2">
+              {users.map((u) => {
+                const cfg = STATUS_CONFIG[u.status] || STATUS_CONFIG.free;
+                const expiresAt = u.trial_ends_at
+                  ? new Date(u.trial_ends_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+                  : "—";
+                return (
+                  <div
+                    key={u.user_id}
+                    className="flex items-center justify-between rounded-lg border border-border bg-background p-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {u.status === "premium" || u.status === "trial"
+                          ? `Vence: ${expiresAt}`
+                          : u.status === "expired"
+                          ? `Venció: ${expiresAt}`
+                          : `Registrado`}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${cfg.className}`}>
+                      {cfg.label}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 };
