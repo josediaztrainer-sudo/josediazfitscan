@@ -2,3 +2,6 @@ project_id = "ttdwfxqkclucdhscsatj"
 
 [functions.coach-chat]
 verify_jwt = false
+
+[functions.scan-food]
+verify_jwt = false
