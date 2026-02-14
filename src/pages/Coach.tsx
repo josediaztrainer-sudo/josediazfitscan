@@ -13,7 +13,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 
 const getWelcome = (sex?: string) => {
   const greeting = sex === "female" ? "campeona" : "campeón";
-  return `¡Qué tal, ${greeting}! 🧡💪 Soy tu Coach IA de JOSE DIAZ SCAN. Estoy aquí para acompañarte en cada paso de tu transformación. Pregúntame sobre nutrición, macros, rutinas de gym o casa, o dime qué comiste hoy. ¡Vamos con todo! 🔥`;
+  return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal de nutrición y entrenamiento. Estoy aquí para acompañarte en cada paso de tu transformación — con ciencia, dedicación y mucho corazón. 💪\n\nPuedes preguntarme sobre:\n• 🥩 Nutrición y macros personalizados\n• 🏋️ Rutinas de gym o casa\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de lo que comiste hoy\n\n¡Vamos con todo, ${greeting}! Tu mejor versión te está esperando. ⚡`;
 };
 
 const Coach = () => {
@@ -177,11 +177,11 @@ const Coach = () => {
               <Bot className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="font-display text-lg tracking-wide text-foreground">COACH IA</h2>
+              <h2 className="font-display text-lg font-bold tracking-wider text-foreground">JOSE DIAZ COACH</h2>
               <p className="text-xs text-muted-foreground">
                 {userContext
-                  ? `${userContext.consumedCalories}/${userContext.targetCalories} kcal hoy`
-                  : "Entrenador nutricional 🇵🇪"}
+                  ? `${userContext.consumedCalories}/${userContext.targetCalories} kcal hoy · En línea`
+                  : "Tu coach personal · En línea 🟢"}
               </p>
             </div>
           </div>
