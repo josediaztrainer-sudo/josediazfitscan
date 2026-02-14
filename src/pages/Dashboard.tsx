@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Flame, Drumstick, Wheat, Droplets, Crown, Clock } from "lucide-react";
+import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -154,7 +154,13 @@ const Dashboard = () => {
 
       {/* Meals list */}
       <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="mb-3 font-display text-lg tracking-wide text-foreground">COMIDAS DE HOY</h3>
+        <div className="mb-3 flex items-center gap-2">
+          <UtensilsCrossed className="h-4 w-4 text-primary" />
+          <h3 className="font-display text-lg tracking-wide text-foreground">COMIDAS DE HOY</h3>
+          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {meals.length}
+          </span>
+        </div>
         {meals.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Escanea tu primera comida para comenzar a trackear 💪
@@ -162,19 +168,7 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-2">
             {meals.map((meal) => (
-              <div key={meal.id} className="flex items-center justify-between rounded-md border border-border bg-background p-3">
-                <div>
-                  <p className="text-sm font-medium capitalize text-foreground">
-                    {meal.meal_type === "breakfast" ? "Desayuno" : meal.meal_type === "lunch" ? "Almuerzo" : meal.meal_type === "dinner" ? "Cena" : "Snack"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{meal.total_calories} kcal</p>
-                </div>
-                <div className="flex gap-3 text-xs text-muted-foreground">
-                  <span className="text-protein">{meal.total_protein}g P</span>
-                  <span className="text-carbs">{meal.total_carbs}g C</span>
-                  <span className="text-fat">{meal.total_fat}g G</span>
-                </div>
-              </div>
+              <MealCard key={meal.id} meal={meal} />
             ))}
           </div>
         )}
@@ -203,6 +197,65 @@ const MacroCard = ({ icon, label, current, target, unit, varName }: {
           style={{ width: `${percent}%` }}
         />
       </div>
+    </div>
+  );
+};
+
+const MEAL_LABELS: Record<string, string> = {
+  breakfast: "🌅 Desayuno",
+  lunch: "☀️ Almuerzo",
+  dinner: "🌙 Cena",
+  snack: "🍎 Snack",
+};
+
+const MealCard = ({ meal }: { meal: MealScan }) => {
+  const [open, setOpen] = useState(false);
+  const time = new Date(meal.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+  const foods: any[] = Array.isArray(meal.foods_json) ? meal.foods_json : [];
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-border bg-background">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between p-3 text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {MEAL_LABELS[meal.meal_type || "snack"] || "Comida"}
+            </p>
+            <p className="text-xs text-muted-foreground">{time} · {meal.total_calories} kcal</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 text-xs">
+            <span className="text-protein">{meal.total_protein}g P</span>
+            <span className="text-carbs">{meal.total_carbs}g C</span>
+            <span className="text-fat">{meal.total_fat}g G</span>
+          </div>
+          {foods.length > 0 && (
+            open ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          )}
+        </div>
+      </button>
+
+      {open && foods.length > 0 && (
+        <div className="border-t border-border px-3 pb-3 pt-2">
+          <div className="space-y-1.5">
+            {foods.map((food, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-foreground">{food.name || food.nombre || `Alimento ${i + 1}`}</span>
+                <div className="flex gap-2 text-muted-foreground">
+                  {food.calories && <span>{food.calories} kcal</span>}
+                  {food.protein && <span className="text-protein">{food.protein}g P</span>}
+                  {food.carbs && <span className="text-carbs">{food.carbs}g C</span>}
+                  {food.fat && <span className="text-fat">{food.fat}g G</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
