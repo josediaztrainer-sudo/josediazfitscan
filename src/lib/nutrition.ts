@@ -1,4 +1,19 @@
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+export type FatLossGoal = 'light' | 'extreme' | 'recomp';
+
+export interface GoalOption {
+  value: FatLossGoal;
+  label: string;
+  emoji: string;
+  deficitPercent: number;
+  description: string;
+}
+
+export const GOAL_OPTIONS: GoalOption[] = [
+  { value: 'light', label: 'Ligera', emoji: '🔥', deficitPercent: 15, description: '−15% déficit' },
+  { value: 'extreme', label: 'Extrema', emoji: '💀', deficitPercent: 30, description: '−30% déficit' },
+  { value: 'recomp', label: 'Recomp', emoji: '⚡', deficitPercent: 8, description: '−8% déficit' },
+];
 
 export interface UserProfile {
   id: string;
@@ -64,18 +79,23 @@ export function calculateTDEE(
   return Math.round(bmr * ACTIVITY_MULTIPLIERS[activity]);
 }
 
-export function calculateMacros(tdee: number, weightKg: number) {
-  // 20-25% deficit for fat loss
-  const targetCalories = Math.round(tdee * 0.775); // 22.5% deficit
-  // Protein: 2.4 g/kg (middle of 2.2-2.6)
-  const proteinG = Math.round(weightKg * 2.4);
+export function calculateMacros(tdee: number, weightKg: number, goal: FatLossGoal = 'light') {
+  const goalOption = GOAL_OPTIONS.find(g => g.value === goal) || GOAL_OPTIONS[0];
+  const deficitMultiplier = 1 - (goalOption.deficitPercent / 100);
+  const targetCalories = Math.round(tdee * deficitMultiplier);
+  
+  // Protein: higher for extreme deficit to preserve muscle
+  const proteinPerKg = goal === 'extreme' ? 2.6 : goal === 'recomp' ? 2.2 : 2.4;
+  const proteinG = Math.round(weightKg * proteinPerKg);
   const proteinCal = proteinG * 4;
+  
   // Fat: 25% of target calories
   const fatCal = Math.round(targetCalories * 0.25);
   const fatG = Math.round(fatCal / 9);
+  
   // Carbs: remainder
   const carbsCal = targetCalories - proteinCal - fatCal;
-  const carbsG = Math.round(carbsCal / 4);
+  const carbsG = Math.max(0, Math.round(carbsCal / 4));
 
   return { targetCalories, proteinG, carbsG, fatG };
 }

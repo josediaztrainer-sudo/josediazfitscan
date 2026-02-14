@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets } from "lucide-react";
+import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { calculateTDEE, calculateMacros, type ActivityLevel } from "@/lib/nutrition";
+import { calculateTDEE, calculateMacros, GOAL_OPTIONS, type ActivityLevel, type FatLossGoal } from "@/lib/nutrition";
 import { motion } from "framer-motion";
+import profileBg from "@/assets/profile-bg.jpg";
 
 const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; emoji: string }[] = [
   { value: "sedentary", label: "Sedentario", emoji: "🪑" },
@@ -33,6 +34,7 @@ const Profile = () => {
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [activity, setActivity] = useState<ActivityLevel>("moderate");
+  const [goal, setGoal] = useState<FatLossGoal>("light");
   const [email, setEmail] = useState("");
 
   // Computed values
@@ -59,6 +61,7 @@ const Profile = () => {
         if (data.weight_kg) setWeight(String(data.weight_kg));
         if (data.height_cm) setHeight(String(data.height_cm));
         if (data.activity_level) setActivity(data.activity_level as ActivityLevel);
+        if (data.goal) setGoal(data.goal as FatLossGoal);
       }
       setLoading(false);
     };
@@ -73,9 +76,9 @@ const Profile = () => {
     if (a > 0 && w > 0 && h > 0) {
       const t = calculateTDEE(sex, w, h, a, activity);
       setTdee(t);
-      setMacros(calculateMacros(t, w));
+      setMacros(calculateMacros(t, w, goal));
     }
-  }, [age, sex, weight, height, activity]);
+  }, [age, sex, weight, height, activity, goal]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -89,6 +92,7 @@ const Profile = () => {
           weight_kg: Number(weight),
           height_cm: Number(height),
           activity_level: activity,
+          goal,
           target_calories: macros.targetCalories,
           target_protein: macros.proteinG,
           target_carbs: macros.carbsG,
@@ -119,165 +123,205 @@ const Profile = () => {
   }
 
   const hasValidData = Number(age) > 0 && Number(weight) > 0 && Number(height) > 0;
+  const selectedGoal = GOAL_OPTIONS.find(g => g.value === goal) || GOAL_OPTIONS[0];
 
   return (
-    <div className="min-h-screen bg-background px-4 pb-24 pt-8">
-      <h1 className="mb-6 font-display text-3xl tracking-wider text-primary text-glow">
-        MI PERFIL
-      </h1>
+    <div className="relative min-h-screen pb-24">
+      {/* Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${profileBg})` }}
+      />
+      <div className="fixed inset-0 bg-background/75" />
+      <div className="fixed inset-x-0 top-0 h-[30%] bg-gradient-to-b from-background/90 to-transparent" />
 
-      {/* Avatar + email */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 ring-2 ring-primary/40">
-          <User className="h-7 w-7 text-primary" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-foreground">{email}</p>
-          <p className="text-xs text-muted-foreground">Cuenta activa</p>
-        </div>
-      </div>
+      <div className="relative z-10 px-4 pt-8">
+        <h1 className="mb-6 font-display text-3xl tracking-wider text-primary text-glow">
+          MI PERFIL
+        </h1>
 
-      {/* Biometrics form */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
-      >
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="mb-3 font-display text-lg tracking-wide text-foreground">DATOS PERSONALES</p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Edad</label>
-              <Input
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="25"
-                className="bg-background"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Sexo</label>
-              <div className="flex gap-2">
-                {SEX_OPTIONS.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setSex(s.value as "male" | "female")}
-                    className={`flex-1 rounded-lg border p-2 text-center text-xs transition-all ${
-                      sex === s.value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background text-muted-foreground"
-                    }`}
-                  >
-                    {s.emoji} {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* Avatar + email */}
+        <div className="mb-6 flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 ring-2 ring-primary/40">
+            <User className="h-7 w-7 text-primary" />
           </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Peso (kg)</label>
-              <Input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="75"
-                className="bg-background"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Altura (cm)</label>
-              <Input
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-                placeholder="175"
-                className="bg-background"
-              />
-            </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">{email}</p>
+            <p className="text-xs text-muted-foreground">Cuenta activa</p>
           </div>
         </div>
 
-        {/* Activity level */}
-        <div className="rounded-lg border border-border bg-card p-4">
-          <p className="mb-3 font-display text-lg tracking-wide text-foreground">NIVEL DE ACTIVIDAD</p>
-          <div className="grid grid-cols-5 gap-1">
-            {ACTIVITY_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setActivity(opt.value)}
-                className={`rounded-lg border p-2 text-center transition-all ${
-                  activity === opt.value
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background text-muted-foreground"
-                }`}
-              >
-                <span className="block text-lg">{opt.emoji}</span>
-                <span className="block text-[10px] leading-tight">{opt.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Calculated plan */}
-        {hasValidData && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-lg border border-primary/30 bg-primary/5 p-4"
-          >
-            <p className="mb-3 font-display text-lg tracking-wide text-foreground">TU PLAN NUTRICIONAL</p>
-
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">TDEE (mantenimiento)</span>
-              <span className="font-medium text-foreground">{tdee} kcal</span>
-            </div>
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Objetivo diario (−22.5%)</span>
-              <span className="flex items-center gap-1 text-lg font-bold text-primary">
-                <Flame className="h-4 w-4" /> {macros.targetCalories} kcal
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-lg bg-background p-3 text-center">
-                <Drumstick className="mx-auto mb-1 h-4 w-4 text-protein" />
-                <p className="text-lg font-bold text-protein">{macros.proteinG}g</p>
-                <p className="text-[10px] text-muted-foreground">Proteína</p>
-              </div>
-              <div className="rounded-lg bg-background p-3 text-center">
-                <Wheat className="mx-auto mb-1 h-4 w-4 text-carbs" />
-                <p className="text-lg font-bold text-carbs">{macros.carbsG}g</p>
-                <p className="text-[10px] text-muted-foreground">Carbos</p>
-              </div>
-              <div className="rounded-lg bg-background p-3 text-center">
-                <Droplets className="mx-auto mb-1 h-4 w-4 text-fat" />
-                <p className="text-lg font-bold text-fat">{macros.fatG}g</p>
-                <p className="text-[10px] text-muted-foreground">Grasas</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Save button */}
-        <Button
-          onClick={handleSave}
-          disabled={saving || !hasValidData}
-          className="w-full font-display text-lg tracking-wider box-glow"
+        {/* Biometrics form */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
         >
-          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-          {saving ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
-        </Button>
+          <div className="rounded-lg border border-border bg-card/90 backdrop-blur-sm p-4">
+            <p className="mb-3 font-display text-lg tracking-wide text-foreground">DATOS PERSONALES</p>
 
-        {/* Logout */}
-        <Button variant="destructive" onClick={handleLogout} className="w-full">
-          <LogOut className="mr-2 h-4 w-4" />
-          Cerrar sesión
-        </Button>
-      </motion.div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Edad</label>
+                <Input
+                  type="number"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  placeholder="25"
+                  className="bg-background"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Sexo</label>
+                <div className="flex gap-2">
+                  {SEX_OPTIONS.map((s) => (
+                    <button
+                      key={s.value}
+                      onClick={() => setSex(s.value as "male" | "female")}
+                      className={`flex-1 rounded-lg border p-2 text-center text-xs transition-all ${
+                        sex === s.value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground"
+                      }`}
+                    >
+                      {s.emoji} {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Peso (kg)</label>
+                <Input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="75"
+                  className="bg-background"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Altura (cm)</label>
+                <Input
+                  type="number"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="175"
+                  className="bg-background"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Activity level */}
+          <div className="rounded-lg border border-border bg-card/90 backdrop-blur-sm p-4">
+            <p className="mb-3 font-display text-lg tracking-wide text-foreground">NIVEL DE ACTIVIDAD</p>
+            <div className="grid grid-cols-5 gap-1">
+              {ACTIVITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setActivity(opt.value)}
+                  className={`rounded-lg border p-2 text-center transition-all ${
+                    activity === opt.value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  <span className="block text-lg">{opt.emoji}</span>
+                  <span className="block text-[10px] leading-tight">{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Goal selection */}
+          <div className="rounded-lg border border-primary/30 bg-card/90 backdrop-blur-sm p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <p className="font-display text-lg tracking-wide text-foreground">OBJETIVO</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {GOAL_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setGoal(opt.value)}
+                  className={`rounded-lg border p-3 text-center transition-all ${
+                    goal === opt.value
+                      ? "border-primary bg-primary/15 text-primary ring-1 ring-primary/50"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/30"
+                  }`}
+                >
+                  <span className="block text-2xl mb-1">{opt.emoji}</span>
+                  <span className="block text-xs font-bold leading-tight">
+                    {opt.value === 'light' && 'PÉRDIDA LIGERA'}
+                    {opt.value === 'extreme' && 'PÉRDIDA EXTREMA'}
+                    {opt.value === 'recomp' && 'RECOMP CORPORAL'}
+                  </span>
+                  <span className="block mt-1 text-[10px] text-primary font-medium">{opt.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Calculated plan */}
+          {hasValidData && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-lg border border-primary/30 bg-primary/5 backdrop-blur-sm p-4"
+            >
+              <p className="mb-3 font-display text-lg tracking-wide text-foreground">TU PLAN NUTRICIONAL</p>
+
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">TDEE (mantenimiento)</span>
+                <span className="font-medium text-foreground">{tdee} kcal</span>
+              </div>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Objetivo ({selectedGoal.description})</span>
+                <span className="flex items-center gap-1 text-lg font-bold text-primary">
+                  <Flame className="h-4 w-4" /> {macros.targetCalories} kcal
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-background/80 p-3 text-center">
+                  <Drumstick className="mx-auto mb-1 h-4 w-4 text-protein" />
+                  <p className="text-lg font-bold text-protein">{macros.proteinG}g</p>
+                  <p className="text-[10px] text-muted-foreground">Proteína</p>
+                </div>
+                <div className="rounded-lg bg-background/80 p-3 text-center">
+                  <Wheat className="mx-auto mb-1 h-4 w-4 text-carbs" />
+                  <p className="text-lg font-bold text-carbs">{macros.carbsG}g</p>
+                  <p className="text-[10px] text-muted-foreground">Carbos</p>
+                </div>
+                <div className="rounded-lg bg-background/80 p-3 text-center">
+                  <Droplets className="mx-auto mb-1 h-4 w-4 text-fat" />
+                  <p className="text-lg font-bold text-fat">{macros.fatG}g</p>
+                  <p className="text-[10px] text-muted-foreground">Grasas</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Save button */}
+          <Button
+            onClick={handleSave}
+            disabled={saving || !hasValidData}
+            className="w-full font-display text-lg tracking-wider box-glow"
+          >
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {saving ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
+          </Button>
+
+          {/* Logout */}
+          <Button variant="destructive" onClick={handleLogout} className="w-full">
+            <LogOut className="mr-2 h-4 w-4" />
+            Cerrar sesión
+          </Button>
+        </motion.div>
+      </div>
     </div>
   );
 };
