@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { Send, Bot, Trash2, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -10,12 +10,13 @@ import remarkGfm from "remark-gfm";
 import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
 
 type Msg = { role: "user" | "assistant"; content: string };
+type Conversation = { id: string; title: string; created_at: string; updated_at: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 
 const getWelcome = (sex?: string) => {
   const greeting = sex === "female" ? "campeona" : "campeón";
-  return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal de nutrición y entrenamiento. Estoy aquí para acompañarte en cada paso de tu transformación — con ciencia, dedicación y mucho corazón. 💪\n\nPuedes preguntarme sobre:\n• 🥩 Nutrición y macros personalizados\n• 🏋️ Rutinas de gym o casa\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de lo que comiste hoy\n\n¡Vamos con todo, ${greeting}! Tu mejor versión te está esperando. ⚡`;
+  return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de tu día\n\n¡Vamos con todo! ⚡`;
 };
 
 const Coach = () => {
@@ -26,48 +27,120 @@ const Coach = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [userContext, setUserContext] = useState<Record<string, any> | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch user profile + today's log for context
+  // Fetch user profile context
   useEffect(() => {
     if (!user) return;
     const fetchContext = async () => {
       const today = new Date().toISOString().split("T")[0];
-
       const [profileRes, logRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("daily_logs").select("*").eq("user_id", user.id).eq("date", today).maybeSingle(),
       ]);
-
       const p = profileRes.data;
       const l = logRes.data;
-
       if (p) {
         const ctx = {
-          weight: p.weight_kg,
-          age: p.age,
-          sex: p.sex,
-          targetCalories: p.target_calories,
-          targetProtein: p.target_protein,
-          targetCarbs: p.target_carbs,
-          targetFat: p.target_fat,
+          weight: p.weight_kg, age: p.age, sex: p.sex,
+          targetCalories: p.target_calories, targetProtein: p.target_protein,
+          targetCarbs: p.target_carbs, targetFat: p.target_fat,
           activityLevel: p.activity_level,
           consumedCalories: l?.total_calories || 0,
-          protein: l?.total_protein || 0,
-          carbs: l?.total_carbs || 0,
-          fat: l?.total_fat || 0,
+          protein: l?.total_protein || 0, carbs: l?.total_carbs || 0, fat: l?.total_fat || 0,
         };
         setUserContext(ctx);
-        // Update welcome message with gender
         setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined) }]);
       }
     };
     fetchContext();
   }, [user]);
+
+  // Load conversations list
+  const loadConversations = useCallback(async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    const { data } = await supabase
+      .from("coach_conversations" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+    setConversations((data as any[] || []) as Conversation[]);
+    setLoadingHistory(false);
+  }, [user]);
+
+  useEffect(() => { loadConversations(); }, [loadConversations]);
+
+  // Load a specific conversation
+  const loadConversation = async (convId: string) => {
+    const { data } = await supabase
+      .from("coach_messages" as any)
+      .select("*")
+      .eq("conversation_id", convId)
+      .order("created_at", { ascending: true });
+
+    if (data && (data as any[]).length > 0) {
+      setMessages((data as any[]).map((m: any) => ({ role: m.role, content: m.content })));
+      setActiveConvId(convId);
+    }
+    setShowHistory(false);
+  };
+
+  // Save a message to DB
+  const saveMessage = async (convId: string, role: string, content: string) => {
+    if (!user) return;
+    await supabase.from("coach_messages" as any).insert({
+      conversation_id: convId,
+      user_id: user.id,
+      role,
+      content,
+    } as any);
+    // Update conversation timestamp + title
+    await supabase.from("coach_conversations" as any)
+      .update({ updated_at: new Date().toISOString() } as any)
+      .eq("id", convId);
+  };
+
+  // Create new conversation
+  const createConversation = async (firstMsg: string): Promise<string> => {
+    if (!user) return "";
+    const title = firstMsg.slice(0, 60) + (firstMsg.length > 60 ? "..." : "");
+    const { data, error } = await supabase
+      .from("coach_conversations" as any)
+      .insert({ user_id: user.id, title } as any)
+      .select()
+      .single();
+    if (error || !data) {
+      console.error("Error creating conversation:", error);
+      return "";
+    }
+    const convId = (data as any).id;
+    setActiveConvId(convId);
+    return convId;
+  };
+
+  // New chat
+  const startNewChat = () => {
+    setActiveConvId(null);
+    setMessages([{ role: "assistant", content: getWelcome(userContext?.sex) }]);
+    setShowHistory(false);
+  };
+
+  // Delete conversation
+  const deleteConversation = async (convId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await supabase.from("coach_conversations" as any).delete().eq("id", convId);
+    setConversations((prev) => prev.filter((c) => c.id !== convId));
+    if (activeConvId === convId) startNewChat();
+  };
 
   const send = async () => {
     if (!input.trim() || loading) return;
@@ -76,6 +149,15 @@ const Coach = () => {
     setMessages(updatedMessages);
     setInput("");
     setLoading(true);
+
+    // Create or reuse conversation
+    let convId = activeConvId;
+    if (!convId) {
+      convId = await createConversation(userMsg.content);
+    }
+
+    // Save user message
+    if (convId) await saveMessage(convId, "user", userMsg.content);
 
     let assistantSoFar = "";
 
@@ -126,14 +208,11 @@ const Coach = () => {
         while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
           textBuffer = textBuffer.slice(newlineIndex + 1);
-
           if (line.endsWith("\r")) line = line.slice(0, -1);
           if (line.startsWith(":") || line.trim() === "") continue;
           if (!line.startsWith("data: ")) continue;
-
           const jsonStr = line.slice(6).trim();
           if (jsonStr === "[DONE]") { streamDone = true; break; }
-
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
@@ -161,6 +240,12 @@ const Coach = () => {
           } catch { /* ignore */ }
         }
       }
+
+      // Save assistant response to DB
+      if (convId && assistantSoFar) {
+        await saveMessage(convId, "assistant", assistantSoFar);
+        loadConversations(); // refresh list
+      }
     } catch (err: any) {
       console.error("Coach chat error:", err);
       toast.error("Error conectando con el coach IA");
@@ -187,16 +272,84 @@ const Coach = () => {
               </p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMessages([messages[0]])}
-            className="text-muted-foreground"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadConversations(); }}
+              className="text-muted-foreground"
+              title="Historial"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={startNewChat}
+              className="text-muted-foreground"
+              title="Nueva conversación"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* History sidebar overlay */}
+      {showHistory && (
+        <div className="absolute inset-0 z-50 flex">
+          <div className="w-full max-w-xs border-r border-border bg-card flex flex-col">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <h3 className="font-display text-sm tracking-wider text-primary">HISTORIAL</h3>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={startNewChat} className="h-7 w-7">
+                  <Plus className="h-3.5 w-3.5 text-primary" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setShowHistory(false)} className="h-7 w-7">
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {loadingHistory ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : conversations.length === 0 ? (
+                <p className="px-4 py-8 text-center text-xs text-muted-foreground">
+                  No hay conversaciones aún. ¡Empieza una!
+                </p>
+              ) : (
+                conversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    onClick={() => loadConversation(conv.id)}
+                    className={`flex cursor-pointer items-center justify-between border-b border-border px-4 py-3 transition-colors hover:bg-primary/5 ${
+                      activeConvId === conv.id ? "bg-primary/10 border-l-2 border-l-primary" : ""
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-foreground">{conv.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(conv.updated_at).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={(e) => deleteConversation(conv.id, e)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="flex-1 bg-background/60" onClick={() => setShowHistory(false)} />
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
