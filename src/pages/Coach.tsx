@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2, Loader2, Plus, MessageSquare, ChevronLeft, X } from "lucide-react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
+import coachBg from "@/assets/coach-bg.jpg";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
@@ -18,6 +19,11 @@ const getWelcome = (sex?: string) => {
   const greeting = sex === "female" ? "campeona" : "campeón";
   return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de tu día\n\n¡Vamos con todo! ⚡`;
 };
+
+// Web Speech API type
+interface SpeechRecognitionEvent {
+  results: { [index: number]: { [index: number]: { transcript: string } } };
+}
 
 const Coach = () => {
   const { user } = useAuth();
@@ -31,7 +37,9 @@ const Coach = () => {
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,14 +87,12 @@ const Coach = () => {
 
   useEffect(() => { loadConversations(); }, [loadConversations]);
 
-  // Load a specific conversation
   const loadConversation = async (convId: string) => {
     const { data } = await supabase
       .from("coach_messages" as any)
       .select("*")
       .eq("conversation_id", convId)
       .order("created_at", { ascending: true });
-
     if (data && (data as any[]).length > 0) {
       setMessages((data as any[]).map((m: any) => ({ role: m.role, content: m.content })));
       setActiveConvId(convId);
@@ -94,22 +100,16 @@ const Coach = () => {
     setShowHistory(false);
   };
 
-  // Save a message to DB
   const saveMessage = async (convId: string, role: string, content: string) => {
     if (!user) return;
     await supabase.from("coach_messages" as any).insert({
-      conversation_id: convId,
-      user_id: user.id,
-      role,
-      content,
+      conversation_id: convId, user_id: user.id, role, content,
     } as any);
-    // Update conversation timestamp + title
     await supabase.from("coach_conversations" as any)
       .update({ updated_at: new Date().toISOString() } as any)
       .eq("id", convId);
   };
 
-  // Create new conversation
   const createConversation = async (firstMsg: string): Promise<string> => {
     if (!user) return "";
     const title = firstMsg.slice(0, 60) + (firstMsg.length > 60 ? "..." : "");
@@ -118,23 +118,18 @@ const Coach = () => {
       .insert({ user_id: user.id, title } as any)
       .select()
       .single();
-    if (error || !data) {
-      console.error("Error creating conversation:", error);
-      return "";
-    }
+    if (error || !data) return "";
     const convId = (data as any).id;
     setActiveConvId(convId);
     return convId;
   };
 
-  // New chat
   const startNewChat = () => {
     setActiveConvId(null);
     setMessages([{ role: "assistant", content: getWelcome(userContext?.sex) }]);
     setShowHistory(false);
   };
 
-  // Delete conversation
   const deleteConversation = async (convId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     await supabase.from("coach_conversations" as any).delete().eq("id", convId);
@@ -142,21 +137,80 @@ const Coach = () => {
     if (activeConvId === convId) startNewChat();
   };
 
+  // Voice recording with Web Speech API
+  const toggleRecording = () => {
+    if (isRecording) {
+      // Stop recording
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    // Start recording
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Tu navegador no soporta reconocimiento de voz. Usa Chrome o Safari.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "es-PE";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast.info("🎙️ Escuchando... Habla ahora", { duration: 2000 });
+    };
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const results = event.results;
+      const lastResult = results[Object.keys(results).length - 1];
+      if (lastResult) {
+        const transcript = lastResult[0].transcript;
+        setInput(transcript);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === "not-allowed") {
+        toast.error("Permiso de micrófono denegado. Habilítalo en la configuración del navegador.");
+      } else if (event.error !== "aborted") {
+        toast.error("Error al escuchar. Intenta de nuevo.");
+      }
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
   const send = async () => {
     if (!input.trim() || loading) return;
+    // Stop recording if active
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    }
+
     const userMsg: Msg = { role: "user", content: input.trim() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
-    // Create or reuse conversation
     let convId = activeConvId;
-    if (!convId) {
-      convId = await createConversation(userMsg.content);
-    }
-
-    // Save user message
+    if (!convId) convId = await createConversation(userMsg.content);
     if (convId) await saveMessage(convId, "user", userMsg.content);
 
     let assistantSoFar = "";
@@ -224,7 +278,6 @@ const Coach = () => {
         }
       }
 
-      // flush remaining
       if (textBuffer.trim()) {
         for (let raw of textBuffer.split("\n")) {
           if (!raw) continue;
@@ -241,10 +294,9 @@ const Coach = () => {
         }
       }
 
-      // Save assistant response to DB
       if (convId && assistantSoFar) {
         await saveMessage(convId, "assistant", assistantSoFar);
-        loadConversations(); // refresh list
+        loadConversations();
       }
     } catch (err: any) {
       console.error("Coach chat error:", err);
@@ -255,147 +307,166 @@ const Coach = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
-      {/* Header */}
-      <div className="border-b border-border bg-card px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 overflow-hidden rounded-full border border-primary">
-              <img src={joseAvatar} alt="Jose Diaz Coach" className="h-full w-full object-cover object-top" />
-            </div>
-            <div>
-              <h2 className="font-display text-lg font-bold tracking-wider text-foreground">JOSE DIAZ COACH</h2>
-              <p className="text-xs text-muted-foreground">
-                {userContext
-                  ? `${userContext.consumedCalories}/${userContext.targetCalories} kcal hoy · En línea`
-                  : "Tu coach personal · En línea 🟢"}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadConversations(); }}
-              className="text-muted-foreground"
-              title="Historial"
-            >
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={startNewChat}
-              className="text-muted-foreground"
-              title="Nueva conversación"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div className="relative flex min-h-screen flex-col pb-24">
+      {/* Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${coachBg})` }}
+      />
+      <div className="fixed inset-0 bg-background/70" />
+      <div className="fixed inset-x-0 top-0 h-[30%] bg-gradient-to-b from-background/90 to-transparent" />
 
-      {/* History sidebar overlay */}
-      {showHistory && (
-        <div className="absolute inset-0 z-50 flex">
-          <div className="w-full max-w-xs border-r border-border bg-card flex flex-col">
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <h3 className="font-display text-sm tracking-wider text-primary">HISTORIAL</h3>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" onClick={startNewChat} className="h-7 w-7">
-                  <Plus className="h-3.5 w-3.5 text-primary" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => setShowHistory(false)} className="h-7 w-7">
-                  <X className="h-3.5 w-3.5" />
-                </Button>
+      <div className="relative z-10 flex min-h-screen flex-col">
+        {/* Header */}
+        <div className="border-b border-border bg-card/90 backdrop-blur-sm px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 overflow-hidden rounded-full border border-primary">
+                <img src={joseAvatar} alt="Jose Diaz Coach" className="h-full w-full object-cover object-top" />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-bold tracking-wider text-foreground">JOSE DIAZ COACH</h2>
+                <p className="text-xs text-muted-foreground">
+                  {userContext
+                    ? `${userContext.consumedCalories}/${userContext.targetCalories} kcal hoy · En línea`
+                    : "Tu coach personal · En línea 🟢"}
+                </p>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              {loadingHistory ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : conversations.length === 0 ? (
-                <p className="px-4 py-8 text-center text-xs text-muted-foreground">
-                  No hay conversaciones aún. ¡Empieza una!
-                </p>
-              ) : (
-                conversations.map((conv) => (
-                  <div
-                    key={conv.id}
-                    onClick={() => loadConversation(conv.id)}
-                    className={`flex cursor-pointer items-center justify-between border-b border-border px-4 py-3 transition-colors hover:bg-primary/5 ${
-                      activeConvId === conv.id ? "bg-primary/10 border-l-2 border-l-primary" : ""
-                    }`}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-foreground">{conv.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(conv.updated_at).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => deleteConversation(conv.id, e)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))
-              )}
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadConversations(); }}
+                className="text-muted-foreground"
+                title="Historial"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={startNewChat}
+                className="text-muted-foreground"
+                title="Nueva conversación"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-          <div className="flex-1 bg-background/60" onClick={() => setShowHistory(false)} />
         </div>
-      )}
 
-      {/* Messages */}
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-foreground"
-              }`}
-            >
-              {m.role === "assistant" ? (
-                <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_li]:my-0.5 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_table]:my-2 [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_th]:text-left [&_th]:font-display [&_th]:tracking-wide [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_td]:text-foreground [&_tr:nth-child(even)]:bg-card/50 [&_hr]:border-primary/20 [&_hr]:my-3 [&_h3]:text-primary [&_h3]:font-display [&_h3]:tracking-wider [&_h3]:text-base [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:text-primary [&_img]:rounded-lg [&_img]:my-2 [&_img]:max-h-40 [&_img]:object-cover [&_img]:border [&_img]:border-border">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+        {/* History sidebar overlay */}
+        {showHistory && (
+          <div className="absolute inset-0 z-50 flex">
+            <div className="w-full max-w-xs border-r border-border bg-card flex flex-col">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <h3 className="font-display text-sm tracking-wider text-primary">HISTORIAL</h3>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={startNewChat} className="h-7 w-7">
+                    <Plus className="h-3.5 w-3.5 text-primary" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => setShowHistory(false)} className="h-7 w-7">
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-              ) : (
-                m.content
-              )}
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {loadingHistory ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  </div>
+                ) : conversations.length === 0 ? (
+                  <p className="px-4 py-8 text-center text-xs text-muted-foreground">
+                    No hay conversaciones aún. ¡Empieza una!
+                  </p>
+                ) : (
+                  conversations.map((conv) => (
+                    <div
+                      key={conv.id}
+                      onClick={() => loadConversation(conv.id)}
+                      className={`flex cursor-pointer items-center justify-between border-b border-border px-4 py-3 transition-colors hover:bg-primary/5 ${
+                        activeConvId === conv.id ? "bg-primary/10 border-l-2 border-l-primary" : ""
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm text-foreground">{conv.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(conv.updated_at).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => deleteConversation(conv.id, e)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-        {loading && messages[messages.length - 1]?.role === "user" && (
-          <div className="flex justify-start">
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" /> Pensando... 🔥
-            </div>
+            <div className="flex-1 bg-background/60" onClick={() => setShowHistory(false)} />
           </div>
         )}
-        <div ref={bottomRef} />
-      </div>
 
-      {/* Input */}
-      <div className="fixed bottom-16 left-0 right-0 border-t border-border bg-card p-3 safe-bottom">
-        <div className="mx-auto flex max-w-lg gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-            placeholder="Pregúntale a tu coach..."
-            className="border-border bg-background text-foreground"
-            disabled={loading}
-          />
-          <Button onClick={send} disabled={loading || !input.trim()} size="icon" className="box-glow shrink-0">
-            <Send className="h-4 w-4" />
-          </Button>
+        {/* Messages */}
+        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                  m.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border bg-card/90 backdrop-blur-sm text-foreground"
+                }`}
+              >
+                {m.role === "assistant" ? (
+                  <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_li]:my-0.5 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_table]:my-2 [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_th]:text-left [&_th]:font-display [&_th]:tracking-wide [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_td]:text-foreground [&_tr:nth-child(even)]:bg-card/50 [&_hr]:border-primary/20 [&_hr]:my-3 [&_h3]:text-primary [&_h3]:font-display [&_h3]:tracking-wider [&_h3]:text-base [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:text-primary [&_img]:rounded-lg [&_img]:my-2 [&_img]:max-h-40 [&_img]:object-cover [&_img]:border [&_img]:border-border">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  m.content
+                )}
+              </div>
+            </div>
+          ))}
+          {loading && messages[messages.length - 1]?.role === "user" && (
+            <div className="flex justify-start">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-card/90 backdrop-blur-sm px-3 py-2 text-sm text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Pensando... 🔥
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input */}
+        <div className="fixed bottom-16 left-0 right-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 safe-bottom">
+          <div className="mx-auto flex max-w-lg gap-2">
+            <Button
+              variant={isRecording ? "default" : "secondary"}
+              size="icon"
+              onClick={toggleRecording}
+              className={`shrink-0 ${isRecording ? "animate-pulse bg-red-600 hover:bg-red-700 border-red-500" : ""}`}
+              title={isRecording ? "Detener grabación" : "Enviar audio"}
+            >
+              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+              placeholder={isRecording ? "🎙️ Escuchando..." : "Pregúntale a tu coach..."}
+              className="border-border bg-background text-foreground"
+              disabled={loading}
+            />
+            <Button onClick={send} disabled={loading || !input.trim()} size="icon" className="box-glow shrink-0">
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
