@@ -27,16 +27,21 @@ export function useSubscription() {
         return;
       }
 
-      if (profile.is_premium) {
-        setStatus("premium");
-        return;
-      }
-
       if (profile.trial_ends_at) {
         const end = new Date(profile.trial_ends_at);
         const now = new Date();
         const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        if (diff > 0) {
+
+        if (profile.is_premium) {
+          if (diff > 0) {
+            setDaysLeft(diff);
+            setStatus("premium");
+          } else {
+            // Premium expired
+            setDaysLeft(0);
+            setStatus("expired");
+          }
+        } else if (diff > 0) {
           setDaysLeft(diff);
           setStatus("trial");
         } else {
