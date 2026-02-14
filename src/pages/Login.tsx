@@ -91,12 +91,36 @@ const Login = () => {
           />
         </div>
 
-        <h1 className="mb-1 text-center font-display text-4xl tracking-wider text-primary text-glow">
-          JOSE DIAZ SCAN
-        </h1>
-        <p className="mb-6 text-center text-sm text-muted-foreground">
-          {isSignup ? "Crea tu cuenta elite" : "Inicia sesión"}
-        </p>
+        {/* Logo con laureles */}
+        <div className="mb-6 text-center">
+          <h1 className="font-display text-5xl tracking-wider text-primary text-glow leading-none">
+            JOSE DIAZ
+          </h1>
+          <div className="mt-1 flex items-center justify-center gap-2">
+            {/* Laurel izquierdo */}
+            <svg viewBox="0 0 32 48" className="h-8 w-5 text-primary/80" fill="currentColor">
+              <path d="M28 4c-4 2-8 8-10 14-2-4-6-8-10-10 6 4 8 10 10 16-4-2-8-2-12 0 6 0 10 2 14 6-2 4-6 8-10 10 6-2 10-6 12-10 2 4 4 8 4 14 0-6 0-12-2-18C26 18 30 12 28 4z" />
+            </svg>
+            {/* Pesa / Dumbbell */}
+            <div className="flex items-center gap-0.5">
+              <div className="h-5 w-2 rounded-sm bg-primary/90" />
+              <div className="h-3 w-1.5 rounded-sm bg-primary/70" />
+              <div className="h-1.5 w-4 rounded-full bg-primary" />
+              <div className="h-3 w-1.5 rounded-sm bg-primary/70" />
+              <div className="h-5 w-2 rounded-sm bg-primary/90" />
+            </div>
+            {/* Laurel derecho (espejado) */}
+            <svg viewBox="0 0 32 48" className="h-8 w-5 text-primary/80 -scale-x-100" fill="currentColor">
+              <path d="M28 4c-4 2-8 8-10 14-2-4-6-8-10-10 6 4 8 10 10 16-4-2-8-2-12 0 6 0 10 2 14 6-2 4-6 8-10 10 6-2 10-6 12-10 2 4 4 8 4 14 0-6 0-12-2-18C26 18 30 12 28 4z" />
+            </svg>
+          </div>
+          <p className="mt-0.5 font-display text-2xl tracking-[0.35em] text-primary/90">
+            FIT SCAN
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground tracking-wide">
+            {isSignup ? "Crea tu cuenta elite" : "Inicia sesión"}
+          </p>
+        </div>
 
         {/* Google Sign In */}
         <Button
