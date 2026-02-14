@@ -194,6 +194,7 @@ const Scan = () => {
         style={{ backgroundImage: `url(${scanBg})` }}
       />
       <div className="fixed inset-0 bg-background/35" />
+      <div className="fixed inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-background via-background/80 to-transparent" />
       <div className="relative z-10 px-4">
       <h1 className="mb-2 text-center font-display text-3xl tracking-wider text-primary text-glow">
         ESCANEA TU COMIDA
