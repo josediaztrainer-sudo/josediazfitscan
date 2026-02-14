@@ -11,12 +11,15 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 
-const WELCOME = "¡Qué tal, causa! 💪 Soy tu Coach IA de JOSE DIAZ SCAN. Pregúntame sobre nutrición, macros, o dime qué comiste hoy y te doy feedback brutal. ¡La grasa no negocia, tú tampoco! 🔥";
+const getWelcome = (sex?: string) => {
+  const greeting = sex === "female" ? "campeona" : "campeón";
+  return `¡Qué tal, ${greeting}! 🧡💪 Soy tu Coach IA de JOSE DIAZ SCAN. Estoy aquí para acompañarte en cada paso de tu transformación. Pregúntame sobre nutrición, macros, rutinas de gym o casa, o dime qué comiste hoy. ¡Vamos con todo! 🔥`;
+};
 
 const Coach = () => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: WELCOME },
+    { role: "assistant", content: getWelcome() },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +45,7 @@ const Coach = () => {
       const l = logRes.data;
 
       if (p) {
-        setUserContext({
+        const ctx = {
           weight: p.weight_kg,
           age: p.age,
           sex: p.sex,
@@ -55,7 +58,10 @@ const Coach = () => {
           protein: l?.total_protein || 0,
           carbs: l?.total_carbs || 0,
           fat: l?.total_fat || 0,
-        });
+        };
+        setUserContext(ctx);
+        // Update welcome message with gender
+        setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined) }]);
       }
     };
     fetchContext();
