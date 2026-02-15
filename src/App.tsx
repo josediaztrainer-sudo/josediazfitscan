@@ -14,6 +14,7 @@ import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Progress from "./pages/Progress";
+import Install from "./pages/Install";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
 
@@ -38,6 +39,7 @@ const AppLayout = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/paywall" element={<Paywall />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/install" element={<Install />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {showNav && <BottomNav />}
