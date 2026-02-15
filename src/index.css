@@ -60,11 +60,19 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    height: -webkit-fill-available;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    overscroll-behavior: none;
   }
 
   h1, h2, h3, h4, h5, h6 {

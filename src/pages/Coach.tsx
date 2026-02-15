@@ -384,7 +384,7 @@ const Coach = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col pb-24">
+    <div className="relative flex h-[100dvh] flex-col overflow-hidden">
       {/* Background */}
       <div
         className="fixed inset-0 bg-cover bg-center bg-no-repeat"
@@ -393,7 +393,7 @@ const Coach = () => {
       <div className="fixed inset-0 bg-background/70" />
       <div className="fixed inset-x-0 top-0 h-[30%] bg-gradient-to-b from-background/90 to-transparent" />
 
-      <div className="relative z-10 flex min-h-screen flex-col">
+      <div className="relative z-10 flex h-full flex-col">
         {/* Header */}
         <div className="border-b border-border bg-card/90 backdrop-blur-sm px-4 py-3">
           <div className="flex items-center justify-between">
@@ -490,7 +490,7 @@ const Coach = () => {
         )}
 
         {/* Messages */}
-        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-20">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
@@ -529,7 +529,7 @@ const Coach = () => {
         </div>
 
         {/* Input */}
-        <div className="fixed bottom-16 left-0 right-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 safe-bottom">
+        <div className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 mb-14 safe-bottom">
           <div className="mx-auto flex max-w-lg gap-2">
             <Button
               variant={isRecording ? "default" : "secondary"}
