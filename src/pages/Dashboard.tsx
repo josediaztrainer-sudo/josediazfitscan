@@ -333,37 +333,53 @@ const TrialBanner = () => {
 
   if (status === "loading" || status === "premium") return null;
 
+  const isExpired = status === "expired";
+  const isLastDays = daysLeft <= 2 && !isExpired;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mb-4 flex items-center justify-between rounded-lg border p-3 ${
-        status === "expired"
+      className={`mb-4 rounded-lg border p-3 ${
+        isExpired
           ? "border-destructive/50 bg-destructive/10"
+          : isLastDays
+          ? "border-primary/50 bg-primary/10"
           : "border-primary/30 bg-primary/5"
       }`}
     >
-      <div className="flex items-center gap-2">
-        {status === "expired" ? (
-          <Crown className="h-4 w-4 text-destructive" />
-        ) : (
-          <Clock className="h-4 w-4 text-primary" />
-        )}
-        <span className="text-xs font-medium text-foreground">
-          {status === "expired"
-            ? "Tu prueba gratuita expiró"
-            : `${daysLeft} días de prueba restantes`}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {isExpired ? (
+            <Crown className="h-4 w-4 text-destructive" />
+          ) : (
+            <Clock className="h-4 w-4 text-primary" />
+          )}
+          <span className="text-xs font-medium text-foreground">
+            {isExpired
+              ? "Tu prueba gratuita expiró"
+              : isLastDays
+              ? `¡Solo ${daysLeft} día${daysLeft > 1 ? "s" : ""} restante${daysLeft > 1 ? "s" : ""}!`
+              : `${daysLeft} días de prueba restantes`}
+          </span>
+        </div>
+        <Button
+          size="sm"
+          variant={isExpired || isLastDays ? "default" : "outline"}
+          onClick={() => navigate("/paywall")}
+          className="h-7 text-xs font-display tracking-wider"
+        >
+          <Crown className="mr-1 h-3 w-3" />
+          {isExpired ? "ACCEDE A PREMIUM" : "PREMIUM"}
+        </Button>
       </div>
-      <Button
-        size="sm"
-        variant={status === "expired" ? "default" : "outline"}
-        onClick={() => navigate("/paywall")}
-        className="h-7 text-xs font-display tracking-wider"
-      >
-        <Crown className="mr-1 h-3 w-3" />
-        PREMIUM
-      </Button>
+      {(isExpired || isLastDays) && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {isExpired
+            ? "Renueva ahora para seguir escaneando comidas y hablando con el Coach 💪"
+            : "¡No pierdas tu acceso! Suscríbete antes de que termine tu prueba 🔥"}
+        </p>
+      )}
     </motion.div>
   );
 };

@@ -5,3 +5,27 @@ verify_jwt = false
 
 [functions.scan-food]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.check-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
+
+[functions.activate-premium]
+verify_jwt = false
+
+[functions.deactivate-premium]
+verify_jwt = false
+
+[functions.list-premium-users]
+verify_jwt = false
+
+[functions.estimate-bodyfat]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = false

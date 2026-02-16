@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, Shield, Zap, Star, Clock, CheckCircle } from "lucide-react";
+import { Crown, Shield, Zap, Star, Clock, CheckCircle, CreditCard, Smartphone, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import yapeQr from "@/assets/yape-qr.jpeg";
 
 const FEATURES = [
@@ -12,9 +15,31 @@ const FEATURES = [
   { icon: CheckCircle, text: "Seguimiento de macros y calorías diario" },
 ];
 
+type PayMethod = "card" | "yape";
+
 const Paywall = () => {
   const { status, daysLeft } = useSubscription();
   const navigate = useNavigate();
+  const [method, setMethod] = useState<PayMethod>("card");
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  const handleStripeCheckout = async () => {
+    setLoadingCheckout(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No se recibió la URL de pago");
+      }
+    } catch (e: any) {
+      console.error("Checkout error:", e);
+      toast.error("Error al iniciar el pago. Intenta de nuevo.");
+    } finally {
+      setLoadingCheckout(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background px-5 pb-8 pt-10">
@@ -80,57 +105,134 @@ const Paywall = () => {
         <p className="text-xs text-muted-foreground">Cancela cuando quieras · Sin compromisos</p>
       </motion.div>
 
-      {/* Yape QR Section */}
+      {/* Payment Method Tabs */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="mb-6 rounded-xl border border-border bg-card p-5"
+        transition={{ delay: 0.45 }}
+        className="mb-4"
       >
-        <h3 className="mb-3 text-center font-display text-xl tracking-wider text-foreground">
-          PAGA CON YAPE 📱
-        </h3>
-
-        <div className="mx-auto mb-4 overflow-hidden rounded-xl" style={{ width: "fit-content" }}>
-          <img
-            src={yapeQr}
-            alt="QR de Yape - Jose Diaz 960300099"
-            className="h-52 w-52 object-contain"
-          />
-        </div>
-        <p className="mb-1 text-center font-display text-lg tracking-wider text-foreground">960300099</p>
-        <p className="mb-4 text-center text-xs text-muted-foreground">Jose Diaz · Yape</p>
-
-        <div className="space-y-2 rounded-lg bg-primary/5 p-3">
-          <p className="text-center text-xs font-medium text-primary">📋 Instrucciones:</p>
-          <ol className="space-y-1 text-xs text-muted-foreground">
-            <li className="flex gap-2"><span className="font-bold text-primary">1.</span> Abre Yape y busca el número <span className="font-bold text-foreground">960300099</span></li>
-            <li className="flex gap-2"><span className="font-bold text-primary">2.</span> Envía <span className="font-bold text-foreground">S/9.90</span> con tu email como mensaje</li>
-            <li className="flex gap-2"><span className="font-bold text-primary">3.</span> Tu cuenta se activará en menos de 24 horas</li>
-          </ol>
+        <div className="flex rounded-lg border border-border bg-card p-1">
+          <button
+            onClick={() => setMethod("card")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${
+              method === "card"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <CreditCard className="h-4 w-4" />
+            Tarjeta
+          </button>
+          <button
+            onClick={() => setMethod("yape")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${
+              method === "yape"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Smartphone className="h-4 w-4" />
+            Yape
+          </button>
         </div>
       </motion.div>
 
-      {/* Actions */}
-      <div className="mt-auto space-y-3">
-        <Button
-          onClick={() => window.open("https://wa.me/51941193092?text=Hola%20Jose%2C%20quiero%20activar%20mi%20plan%20Premium%20de%20JOSE%20DIAZ%20SCAN.%20Adjunto%20mi%20comprobante%20de%20pago%20%F0%9F%A7%BE", "_blank")}
-          className="w-full font-display text-lg tracking-wider box-glow"
-          size="lg"
+      {/* Card Payment */}
+      {method === "card" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 rounded-xl border border-border bg-card p-5"
         >
-          ENVIAR COMPROBANTE POR WHATSAPP 💬
-        </Button>
+          <h3 className="mb-3 text-center font-display text-xl tracking-wider text-foreground">
+            PAGO CON TARJETA 💳
+          </h3>
+          <p className="mb-4 text-center text-xs text-muted-foreground">
+            Débito o crédito · Cobro automático mensual · Cancelación inmediata
+          </p>
 
-        {status === "trial" && (
+          <div className="space-y-2 rounded-lg bg-primary/5 p-3 mb-4">
+            <p className="text-center text-xs font-medium text-primary">✅ Ventajas:</p>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              <li className="flex gap-2"><span className="text-primary">•</span> Activación instantánea al pagar</li>
+              <li className="flex gap-2"><span className="text-primary">•</span> Renovación automática sin preocupaciones</li>
+              <li className="flex gap-2"><span className="text-primary">•</span> Cancela desde tu perfil en cualquier momento</li>
+            </ul>
+          </div>
+
           <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="w-full text-muted-foreground"
+            onClick={handleStripeCheckout}
+            disabled={loadingCheckout}
+            className="w-full font-display text-lg tracking-wider box-glow"
+            size="lg"
           >
-            Continuar con prueba gratuita ({daysLeft} días restantes)
+            {loadingCheckout ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                PROCESANDO...
+              </>
+            ) : (
+              <>
+                <CreditCard className="mr-2 h-5 w-5" />
+                SUSCRIBIRSE CON TARJETA
+              </>
+            )}
           </Button>
-        )}
-      </div>
+        </motion.div>
+      )}
+
+      {/* Yape Payment */}
+      {method === "yape" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 rounded-xl border border-border bg-card p-5"
+        >
+          <h3 className="mb-3 text-center font-display text-xl tracking-wider text-foreground">
+            PAGA CON YAPE 📱
+          </h3>
+
+          <div className="mx-auto mb-4 overflow-hidden rounded-xl" style={{ width: "fit-content" }}>
+            <img
+              src={yapeQr}
+              alt="QR de Yape - Jose Diaz 960300099"
+              className="h-52 w-52 object-contain"
+            />
+          </div>
+          <p className="mb-1 text-center font-display text-lg tracking-wider text-foreground">960300099</p>
+          <p className="mb-4 text-center text-xs text-muted-foreground">Jose Diaz · Yape</p>
+
+          <div className="space-y-2 rounded-lg bg-primary/5 p-3 mb-4">
+            <p className="text-center text-xs font-medium text-primary">📋 Instrucciones:</p>
+            <ol className="space-y-1 text-xs text-muted-foreground">
+              <li className="flex gap-2"><span className="font-bold text-primary">1.</span> Abre Yape y busca el número <span className="font-bold text-foreground">960300099</span></li>
+              <li className="flex gap-2"><span className="font-bold text-primary">2.</span> Envía <span className="font-bold text-foreground">S/9.90</span> con tu email como mensaje</li>
+              <li className="flex gap-2"><span className="font-bold text-primary">3.</span> Envía tu comprobante por WhatsApp</li>
+              <li className="flex gap-2"><span className="font-bold text-primary">4.</span> Tu cuenta se activará en menos de 24 horas</li>
+            </ol>
+          </div>
+
+          <Button
+            onClick={() => window.open("https://wa.me/51941193092?text=Hola%20Jose%2C%20quiero%20activar%20mi%20plan%20Premium%20de%20JOSE%20DIAZ%20SCAN.%20Adjunto%20mi%20comprobante%20de%20pago%20%F0%9F%A7%BE", "_blank")}
+            className="w-full font-display text-lg tracking-wider box-glow"
+            size="lg"
+          >
+            ENVIAR COMPROBANTE POR WHATSAPP 💬
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Back button for trial users */}
+      {status === "trial" && (
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="w-full text-muted-foreground"
+        >
+          Continuar con prueba gratuita ({daysLeft} días restantes)
+        </Button>
+      )}
     </div>
   );
 };
