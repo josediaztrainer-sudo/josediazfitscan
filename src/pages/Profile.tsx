@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets, Target, Crown, Clock } from "lucide-react";
+import { User, LogOut, Save, Loader2, Flame, Drumstick, Wheat, Droplets, Target, Crown, Clock, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -139,6 +139,7 @@ const Profile = () => {
       <div className="relative z-10 px-4 pt-8">
         {/* Premium Banner */}
         <ProfilePremiumBanner />
+        <ProfileSubscriptionManager />
 
         <h1 className="mb-6 font-display text-3xl tracking-wider text-primary text-glow">
           MI PERFIL
@@ -365,6 +366,55 @@ const ProfilePremiumBanner = () => {
         <Crown className="mr-1 h-3 w-3" />
         HAZTE PREMIUM
       </Button>
+    </motion.div>
+  );
+};
+
+const ProfileSubscriptionManager = () => {
+  const { status } = useSubscription();
+  const [loading, setLoading] = useState(false);
+
+  if (status !== "premium") return null;
+
+  const handleManage = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("No se encontró suscripción activa en Stripe. Si pagaste por Yape, contacta soporte.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Error al abrir gestión de suscripción");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Crown className="h-4 w-4 text-primary" />
+          <span className="text-xs font-medium text-foreground">Suscripción Premium activa</span>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleManage}
+          disabled={loading}
+          className="h-7 text-xs font-display tracking-wider"
+        >
+          {loading ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Settings className="mr-1 h-3 w-3" />}
+          GESTIONAR
+        </Button>
+      </div>
     </motion.div>
   );
 };
