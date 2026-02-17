@@ -17,6 +17,7 @@ import Progress from "./pages/Progress";
 import Install from "./pages/Install";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
+import TrialExpirationNotifier from "./components/TrialExpirationNotifier";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const AppLayout = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {showNav && <BottomNav />}
+      <TrialExpirationNotifier />
     </>
   );
 };
