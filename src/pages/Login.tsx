@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
@@ -13,7 +13,9 @@ import trainerPhoto from "@/assets/jose-trainer.jpeg";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [isSignup, setIsSignup] = useState(false);
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get("ref");
+  const [isSignup, setIsSignup] = useState(!!refCode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +34,16 @@ const Login = () => {
         });
         if (error) throw error;
         if (data.session) {
+          // Apply referral code if present
+          if (refCode) {
+            try {
+              await supabase.functions.invoke("apply-referral", {
+                body: { referral_code: refCode },
+              });
+            } catch {
+              // Non-blocking - referral is a bonus
+            }
+          }
           toast.success("¡Cuenta creada! Bienvenido 💪");
           navigate("/dashboard");
         } else {

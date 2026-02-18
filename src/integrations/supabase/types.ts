@@ -169,6 +169,7 @@ export type Database = {
           id: string
           is_premium: boolean
           onboarding_completed: boolean
+          referral_code: string | null
           sex: string | null
           target_calories: number | null
           target_carbs: number | null
@@ -188,6 +189,7 @@ export type Database = {
           id?: string
           is_premium?: boolean
           onboarding_completed?: boolean
+          referral_code?: string | null
           sex?: string | null
           target_calories?: number | null
           target_carbs?: number | null
@@ -207,6 +209,7 @@ export type Database = {
           id?: string
           is_premium?: boolean
           onboarding_completed?: boolean
+          referral_code?: string | null
           sex?: string | null
           target_calories?: number | null
           target_carbs?: number | null
@@ -249,6 +252,27 @@ export type Database = {
           user_id?: string
           week_number?: number
           weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
         }
         Relationships: []
       }
