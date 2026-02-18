@@ -10,6 +10,7 @@ import { calculateTDEE, calculateMacros, GOAL_OPTIONS, type ActivityLevel, type 
 import { useSubscription } from "@/hooks/useSubscription";
 import { motion } from "framer-motion";
 import profileBg from "@/assets/profile-bg.jpg";
+import ReferralSection from "@/components/ReferralSection";
 
 const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; emoji: string }[] = [
   { value: "sedentary", label: "Sedentario", emoji: "🪑" },
@@ -309,6 +310,9 @@ const Profile = () => {
               </div>
             </motion.div>
           )}
+
+          {/* Referral section */}
+          <ReferralSection />
 
           {/* Save button */}
           <Button
