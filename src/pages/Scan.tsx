@@ -16,7 +16,11 @@ type FoodItem = {
   protein: number;
   carbs: number;
   fat: number;
-  originalGrams: number; // to calculate ratio for slider
+  originalGrams: number;
+  originalCalories: number;
+  originalProtein: number;
+  originalCarbs: number;
+  originalFat: number;
 };
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -81,6 +85,10 @@ const Scan = () => {
       const foodsWithOriginal = data.foods.map((f: any) => ({
         ...f,
         originalGrams: f.grams,
+        originalCalories: f.calories,
+        originalProtein: f.protein,
+        originalCarbs: f.carbs,
+        originalFat: f.fat,
       }));
       setFoods(foodsWithOriginal);
       setShowResults(true);
@@ -99,10 +107,10 @@ const Scan = () => {
         return {
           ...f,
           grams: Math.round(newGrams),
-          calories: Math.round((f.calories / (f.grams / f.originalGrams)) * ratio),
-          protein: Math.round(((f.protein / (f.grams / f.originalGrams)) * ratio) * 10) / 10,
-          carbs: Math.round(((f.carbs / (f.grams / f.originalGrams)) * ratio) * 10) / 10,
-          fat: Math.round(((f.fat / (f.grams / f.originalGrams)) * ratio) * 10) / 10,
+          calories: Math.round(f.originalCalories * ratio),
+          protein: Math.round(f.originalProtein * ratio * 10) / 10,
+          carbs: Math.round(f.originalCarbs * ratio * 10) / 10,
+          fat: Math.round(f.originalFat * ratio * 10) / 10,
         };
       })
     );
