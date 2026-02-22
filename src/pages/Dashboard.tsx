@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
+import DietPlanGenerator from "@/components/DietPlanGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -153,6 +154,16 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Diet Plan Generator */}
+      <DietPlanGenerator
+        targetCalories={target.calories}
+        targetProtein={target.protein}
+        targetCarbs={target.carbs}
+        targetFat={target.fat}
+        sex={profile?.sex || null}
+        weightKg={profile?.weight_kg || null}
+      />
 
       {/* Macro Cards */}
       <div className="mb-6 grid grid-cols-3 gap-3">
