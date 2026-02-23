@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-
-const ADMIN_PIN = "JD2026PRO";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PremiumUser {
   user_id: string;
@@ -27,8 +26,9 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 };
 
 const Admin = () => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [pin, setPin] = useState("");
+  const { user, loading: authLoading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [email, setEmail] = useState("");
   const [months, setMonths] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -38,13 +38,47 @@ const Admin = () => {
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
   const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(null);
 
-  const handleLogin = () => {
-    if (pin === ADMIN_PIN) {
-      setAuthenticated(true);
-    } else {
-      toast.error("PIN incorrecto");
-    }
-  };
+  // Check admin role server-side
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) {
+        setCheckingAdmin(false);
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session?.access_token;
+        if (!token) {
+          setIsAdmin(false);
+          setCheckingAdmin(false);
+          return;
+        }
+        // Try calling list-premium-users - if 403, not admin
+        const resp = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-premium-users`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (resp.ok) {
+          setIsAdmin(true);
+          const data = await resp.json();
+          setUsers(data.users || []);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch {
+        setIsAdmin(false);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+    if (!authLoading) checkAdminRole();
+  }, [user, authLoading]);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -57,7 +91,7 @@ const Admin = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -73,10 +107,6 @@ const Admin = () => {
       setLoadingUsers(false);
     }
   };
-
-  useEffect(() => {
-    if (authenticated) fetchUsers();
-  }, [authenticated]);
 
   const handleActivate = async () => {
     const trimmedEmail = email.trim().toLowerCase();
@@ -98,7 +128,7 @@ const Admin = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ user_email: trimmedEmail, months: Number(months) }),
         }
@@ -113,7 +143,7 @@ const Admin = () => {
         setResult({ success: true, message: data.message });
         toast.success(data.message);
         setEmail("");
-        fetchUsers(); // Refresh list
+        fetchUsers();
       }
     } catch (err: any) {
       toast.error("Error de conexión");
@@ -123,34 +153,29 @@ const Admin = () => {
     }
   };
 
-  if (!authenticated) {
+  if (authLoading || checkingAdmin) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-sm space-y-6"
+          className="w-full max-w-sm space-y-6 text-center"
         >
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Lock className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="font-display text-3xl tracking-wider text-foreground">ADMIN</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Ingresa el PIN de administrador</p>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+            <Lock className="h-8 w-8 text-destructive" />
           </div>
-          <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="PIN de acceso"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              className="border-border bg-card text-center text-lg tracking-widest text-foreground"
-            />
-            <Button onClick={handleLogin} className="w-full font-display tracking-wider box-glow">
-              INGRESAR
-            </Button>
-          </div>
+          <h1 className="font-display text-3xl tracking-wider text-foreground">ACCESO DENEGADO</h1>
+          <p className="text-sm text-muted-foreground">
+            {!user ? "Debes iniciar sesión para acceder." : "No tienes permisos de administrador."}
+          </p>
         </motion.div>
       </div>
     );
@@ -304,7 +329,7 @@ const Admin = () => {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
-                          Authorization: `Bearer ${token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                          Authorization: `Bearer ${token}`,
                         },
                         body: JSON.stringify({ user_email: u.email }),
                       }
