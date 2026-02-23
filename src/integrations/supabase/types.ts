@@ -276,6 +276,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_diets: {
+        Row: {
+          created_at: string
+          diet_plan: Json
+          id: string
+          meals_per_day: number
+          target_calories: number
+          target_carbs: number
+          target_fat: number
+          target_protein: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          diet_plan: Json
+          id?: string
+          meals_per_day?: number
+          target_calories: number
+          target_carbs: number
+          target_fat: number
+          target_protein: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          diet_plan?: Json
+          id?: string
+          meals_per_day?: number
+          target_calories?: number
+          target_carbs?: number
+          target_fat?: number
+          target_protein?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
