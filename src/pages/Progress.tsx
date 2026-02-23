@@ -106,9 +106,10 @@ const Progress = () => {
       const fileName = `${user.id}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("progress-photos").upload(fileName, file);
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("progress-photos").getPublicUrl(fileName);
+      const { data: urlData } = await supabase.storage.from("progress-photos").createSignedUrl(fileName, 31536000); // 1 year
+      if (!urlData?.signedUrl) throw new Error("Could not generate signed URL");
       const weekNumber = photos.length + 1;
-      const { error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: urlData.publicUrl, week_number: weekNumber } as any);
+      const { error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: urlData.signedUrl, week_number: weekNumber } as any);
       if (insertError) throw insertError;
       toast.success(`📸 Foto semana ${weekNumber} guardada!`);
       fetchData();
