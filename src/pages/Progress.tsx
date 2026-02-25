@@ -89,7 +89,20 @@ const Progress = () => {
       return { day, calories: log ? Number(log.total_calories) : 0 };
     });
     setWeeklyData(chartData);
-    setPhotos((photosRes.data as any[] || []) as ProgressPhoto[]);
+
+    // Generate signed URLs on-the-fly for all photos
+    const rawPhotos = (photosRes.data as any[] || []) as ProgressPhoto[];
+    const photosWithUrls = await Promise.all(
+      rawPhotos.map(async (photo) => {
+        // If photo_url is already a full URL (legacy), extract the path
+        const filePath = photo.photo_url.includes("://")
+          ? photo.photo_url.split("/progress-photos/").pop() || photo.photo_url
+          : photo.photo_url;
+        const { data } = await supabase.storage.from("progress-photos").createSignedUrl(filePath, 3600); // 1 hour
+        return { ...photo, photo_url: data?.signedUrl || photo.photo_url };
+      })
+    );
+    setPhotos(photosWithUrls);
     setLoading(false);
   }, [user, weekOffset]);
 
@@ -106,10 +119,9 @@ const Progress = () => {
       const fileName = `${user.id}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("progress-photos").upload(fileName, file);
       if (uploadError) throw uploadError;
-      const { data: urlData } = await supabase.storage.from("progress-photos").createSignedUrl(fileName, 31536000); // 1 year
-      if (!urlData?.signedUrl) throw new Error("Could not generate signed URL");
+      // Store the file path, not a signed URL
       const weekNumber = photos.length + 1;
-      const { error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: urlData.signedUrl, week_number: weekNumber } as any);
+      const { error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: fileName, week_number: weekNumber } as any);
       if (insertError) throw insertError;
       toast.success(`📸 Foto semana ${weekNumber} guardada!`);
       fetchData();
@@ -124,8 +136,13 @@ const Progress = () => {
   const deletePhoto = async (photo: ProgressPhoto) => {
     if (!user) return;
     try {
-      const urlParts = photo.photo_url.split("/progress-photos/");
-      if (urlParts[1]) await supabase.storage.from("progress-photos").remove([urlParts[1]]);
+      // photo_url in DB is the file path; the displayed URL is a signed URL
+      // We need to find the original file path from DB
+      const { data: dbPhoto } = await supabase.from("progress_photos" as any).select("photo_url").eq("id", photo.id).single();
+      const filePath = (dbPhoto as any)?.photo_url || "";
+      if (filePath && !filePath.includes("://")) {
+        await supabase.storage.from("progress-photos").remove([filePath]);
+      }
       await supabase.from("progress_photos" as any).delete().eq("id", photo.id);
       toast.success("Foto eliminada");
       setSelectedPhoto(null);
