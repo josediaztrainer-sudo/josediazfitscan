@@ -119,17 +119,49 @@ const Progress = () => {
       const fileName = `${user.id}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from("progress-photos").upload(fileName, file);
       if (uploadError) throw uploadError;
-      // Store the file path, not a signed URL
       const weekNumber = photos.length + 1;
-      const { error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: fileName, week_number: weekNumber } as any);
+      const { data: insertData, error: insertError } = await supabase.from("progress_photos" as any).insert({ user_id: user.id, photo_url: fileName, week_number: weekNumber } as any).select().single();
       if (insertError) throw insertError;
       toast.success(`📸 Foto semana ${weekNumber} guardada!`);
+
+      // Auto-estimate body fat
+      try {
+        const { data: signedData } = await supabase.storage.from("progress-photos").createSignedUrl(fileName, 3600);
+        if (signedData?.signedUrl) {
+          toast.info("🔍 Analizando % de grasa corporal...");
+          const resp = await fetch(ESTIMATE_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              imageUrl: signedData.signedUrl,
+              sex: userProfile?.sex,
+              weight: userProfile?.weight_kg,
+              height: userProfile?.height_cm,
+            }),
+          });
+          if (resp.ok) {
+            const result = await resp.json();
+            if (result.bodyFatPercent) {
+              await supabase.from("progress_photos" as any).update({ body_fat_percent: result.bodyFatPercent } as any).eq("id", (insertData as any).id);
+              toast.success(`💪 Grasa corporal estimada: ${result.bodyFatPercent}%`);
+            }
+          }
+        }
+      } catch {
+        // Non-blocking - estimation is a bonus
+      }
+
       fetchData();
     } catch (err: any) {
       console.error("Upload error:", err);
       toast.error("Error subiendo la foto");
     } finally {
       setUploading(false);
+      // Reset input
+      e.target.value = "";
     }
   };
 
@@ -386,11 +418,20 @@ const Progress = () => {
                   {compareMode ? "Cancelar" : "Comparar"}
                 </Button>
               )}
+              {/* Gallery upload button */}
+              <label className="cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                <div className={`flex items-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-2.5 py-1.5 text-[10px] font-bold text-foreground transition-all hover:bg-secondary ${uploading ? "opacity-50" : ""}`}>
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImagePlus className="h-3 w-3" />}
+                  {uploading ? "..." : "Galería"}
+                </div>
+              </label>
+              {/* Camera upload button */}
               <label className="cursor-pointer">
                 <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                 <div className={`flex items-center gap-1.5 rounded-lg border border-primary bg-primary/10 px-2.5 py-1.5 text-[10px] font-bold text-primary transition-all hover:bg-primary/20 ${uploading ? "opacity-50" : ""}`}>
-                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImagePlus className="h-3 w-3" />}
-                  {uploading ? "..." : "Subir"}
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                  {uploading ? "..." : "Cámara"}
                 </div>
               </label>
             </div>
@@ -424,7 +465,15 @@ const Progress = () => {
                     <img src={photo.photo_url} alt={`Semana ${photo.week_number}`} className="h-full w-full object-cover" loading="lazy" />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1.5 pt-6">
                       <p className="text-[10px] font-bold text-white">Semana {photo.week_number}</p>
+                      {photo.body_fat_percent != null && (
+                        <p className="text-[9px] font-bold text-primary">{photo.body_fat_percent}% grasa</p>
+                      )}
                     </div>
+                    {photo.body_fat_percent != null && !isSelected && (
+                      <div className="absolute top-1 right-1 rounded-full bg-primary/90 px-1.5 py-0.5 text-[8px] font-bold text-primary-foreground">
+                        {photo.body_fat_percent}%
+                      </div>
+                    )}
                     {isSelected && (
                       <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
                         <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
