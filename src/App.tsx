@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Progress from "./pages/Progress";
 import Install from "./pages/Install";
+import ResetPassword from "./pages/ResetPassword";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
 import TrialExpirationNotifier from "./components/TrialExpirationNotifier";
@@ -32,6 +33,7 @@ const AppLayout = () => {
       <Routes>
         <Route path="/" element={<Splash />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scan" element={<ProtectedFeature><Scan /></ProtectedFeature>} />
