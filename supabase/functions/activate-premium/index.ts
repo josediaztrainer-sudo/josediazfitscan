@@ -96,6 +96,17 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
+    // Log transaction
+    await supabaseAdmin.from("payment_transactions").insert({
+      user_id: targetUser.id,
+      user_email: user_email,
+      action: "activate",
+      plan_months: Number(months),
+      amount: 9.9 * Number(months),
+      admin_id: userData.user.id,
+      notes: `Premium activado por ${Number(months)} mes(es)`,
+    });
+
     return new Response(
       JSON.stringify({
         success: true,

@@ -80,6 +80,17 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
+    // Log transaction
+    await supabaseAdmin.from("payment_transactions").insert({
+      user_id: targetUser.id,
+      user_email: user_email,
+      action: "deactivate",
+      plan_months: 0,
+      amount: 0,
+      admin_id: userData.user.id,
+      notes: `Premium desactivado`,
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
