@@ -15,6 +15,13 @@ const FEATURES = [
   { icon: CheckCircle, text: "Seguimiento de macros y calorías diario" },
 ];
 
+const PLANS = [
+  { id: "mensual", months: 1, label: "Mensual", price: 9.9, badge: null },
+  { id: "trimestral", months: 3, label: "Trimestral", price: 24.9, badge: "Ahorra 16%" },
+  { id: "semestral", months: 6, label: "Semestral", price: 44.9, badge: "Ahorra 24%" },
+  { id: "anual", months: 12, label: "Anual", price: 79.9, badge: "Ahorra 33%" },
+];
+
 type PayMethod = "card" | "yape";
 
 const Paywall = () => {
@@ -22,6 +29,9 @@ const Paywall = () => {
   const navigate = useNavigate();
   const [method, setMethod] = useState<PayMethod>("card");
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("mensual");
+
+  const currentPlan = PLANS.find((p) => p.id === selectedPlan)!;
 
   const handleStripeCheckout = async () => {
     setLoadingCheckout(true);
@@ -39,6 +49,13 @@ const Paywall = () => {
     } finally {
       setLoadingCheckout(false);
     }
+  };
+
+  const buildWhatsAppUrl = () => {
+    const planLabel = currentPlan.label;
+    const price = `S/${currentPlan.price.toFixed(2)}`;
+    const msg = `Hola Jose, quiero activar mi plan *${planLabel}* (${price}) de JOSE DIAZ SCAN.%0A%0AMi correo: (escribe tu correo aquí)%0A%0AAdjunto mi comprobante de pago 🧾`;
+    return `https://wa.me/51941193092?text=${encodeURIComponent(msg).replace(/%250A/g, '%0A')}`;
   };
 
   return (
@@ -90,19 +107,43 @@ const Paywall = () => {
         ))}
       </motion.div>
 
-      {/* Price Card */}
+      {/* Plan Selection */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.4 }}
-        className="mb-6 rounded-xl border-2 border-primary/50 bg-card p-5 text-center box-glow"
+        transition={{ delay: 0.35 }}
+        className="mb-6 space-y-2"
       >
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Suscripción mensual</p>
-        <div className="my-2 flex items-baseline justify-center gap-1">
-          <span className="font-display text-5xl tracking-wide text-primary">S/9.90</span>
-          <span className="text-sm text-muted-foreground">/mes</span>
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground text-center mb-3">Elige tu plan</p>
+        <div className="grid grid-cols-2 gap-2">
+          {PLANS.map((plan) => (
+            <button
+              key={plan.id}
+              onClick={() => setSelectedPlan(plan.id)}
+              className={`relative rounded-xl border-2 p-3 text-center transition-all ${
+                selectedPlan === plan.id
+                  ? "border-primary bg-primary/10 box-glow"
+                  : "border-border bg-card hover:border-primary/50"
+              }`}
+            >
+              {plan.badge && (
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground whitespace-nowrap">
+                  {plan.badge}
+                </span>
+              )}
+              <p className="font-display text-sm tracking-wider text-foreground mt-1">{plan.label}</p>
+              <p className="font-display text-2xl tracking-wide text-primary">S/{plan.price.toFixed(2)}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {plan.months === 1 ? "/mes" : `/${plan.months} meses`}
+              </p>
+              {plan.months > 1 && (
+                <p className="text-[10px] text-primary/70">
+                  S/{(plan.price / plan.months).toFixed(2)}/mes
+                </p>
+              )}
+            </button>
+          ))}
         </div>
-        <p className="text-xs text-muted-foreground">Cancela cuando quieras · Sin compromisos</p>
       </motion.div>
 
       {/* Payment Method Tabs */}
@@ -175,7 +216,7 @@ const Paywall = () => {
             ) : (
               <>
                 <CreditCard className="mr-2 h-5 w-5" />
-                SUSCRIBIRSE CON TARJETA
+                SUSCRIBIRSE — S/{currentPlan.price.toFixed(2)}
               </>
             )}
           </Button>
@@ -207,14 +248,14 @@ const Paywall = () => {
             <p className="text-center text-xs font-medium text-primary">📋 Instrucciones:</p>
             <ol className="space-y-1 text-xs text-muted-foreground">
               <li className="flex gap-2"><span className="font-bold text-primary">1.</span> Abre Yape y busca el número <span className="font-bold text-foreground">960300099</span></li>
-              <li className="flex gap-2"><span className="font-bold text-primary">2.</span> Envía <span className="font-bold text-foreground">S/9.90</span> con tu email como mensaje</li>
-              <li className="flex gap-2"><span className="font-bold text-primary">3.</span> Envía tu comprobante por WhatsApp</li>
+              <li className="flex gap-2"><span className="font-bold text-primary">2.</span> Envía <span className="font-bold text-foreground">S/{currentPlan.price.toFixed(2)}</span> ({currentPlan.label})</li>
+              <li className="flex gap-2"><span className="font-bold text-primary">3.</span> Envía tu comprobante + correo por WhatsApp</li>
               <li className="flex gap-2"><span className="font-bold text-primary">4.</span> Tu cuenta se activará en menos de 24 horas</li>
             </ol>
           </div>
 
           <Button
-            onClick={() => window.open("https://wa.me/51941193092?text=Hola%20Jose%2C%20quiero%20activar%20mi%20plan%20Premium%20de%20JOSE%20DIAZ%20SCAN.%20Adjunto%20mi%20comprobante%20de%20pago%20%F0%9F%A7%BE", "_blank")}
+            onClick={() => window.open(buildWhatsAppUrl(), "_blank")}
             className="w-full font-display text-lg tracking-wider box-glow"
             size="lg"
           >
