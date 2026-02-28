@@ -159,6 +159,42 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          action: string
+          admin_id: string
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          plan_months: number
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          action?: string
+          admin_id: string
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plan_months?: number
+          user_email: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plan_months?: number
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activity_level: string | null
