@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,13 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   free: { label: "Free", className: "bg-muted text-muted-foreground border-border" },
 };
 
+const MONTH_OPTIONS = [
+  { value: "1", label: "1 MES" },
+  { value: "3", label: "3 MESES" },
+  { value: "6", label: "6 MESES" },
+  { value: "12", label: "12 MESES" },
+];
+
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -37,6 +44,8 @@ const Admin = () => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
   const [confirmDeactivateId, setConfirmDeactivateId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Check admin role server-side
   useEffect(() => {
@@ -54,7 +63,6 @@ const Admin = () => {
           setCheckingAdmin(false);
           return;
         }
-        // Try calling list-premium-users - if 403, not admin
         const resp = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-premium-users`,
           {
@@ -85,7 +93,6 @@ const Admin = () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
-
       const resp = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/list-premium-users`,
         {
@@ -114,14 +121,11 @@ const Admin = () => {
       toast.error("Completa todos los campos");
       return;
     }
-
     setLoading(true);
     setResult(null);
-
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
-
       const resp = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/activate-premium`,
         {
@@ -133,9 +137,7 @@ const Admin = () => {
           body: JSON.stringify({ user_email: trimmedEmail, months: Number(months) }),
         }
       );
-
       const data = await resp.json();
-
       if (!resp.ok) {
         setResult({ success: false, message: data.error || "Error desconocido" });
         toast.error(data.error || "Error activando premium");
@@ -150,6 +152,37 @@ const Admin = () => {
       setResult({ success: false, message: err.message });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userEmail: string, userId: string) => {
+    setDeletingId(userId);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ user_email: userEmail }),
+        }
+      );
+      const data = await resp.json();
+      if (resp.ok) {
+        toast.success(data.message);
+        fetchUsers();
+      } else {
+        toast.error(data.error || "Error eliminando usuario");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -188,7 +221,7 @@ const Admin = () => {
           <Shield className="h-7 w-7 text-primary" />
         </div>
         <h1 className="font-display text-3xl tracking-wider text-foreground">PANEL ADMIN</h1>
-        <p className="mt-1 text-xs text-muted-foreground">Activar suscripciones Premium</p>
+        <p className="mt-1 text-xs text-muted-foreground">Gestión de usuarios y suscripciones</p>
       </motion.div>
 
       <div className="mx-auto w-full max-w-md space-y-5">
@@ -217,19 +250,19 @@ const Admin = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground">Meses a activar</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {["1", "3", "6"].map((m) => (
+            <Label className="text-foreground">Plan a activar</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {MONTH_OPTIONS.map((m) => (
                 <button
-                  key={m}
-                  onClick={() => setMonths(m)}
-                  className={`rounded-lg border p-3 text-center font-display text-lg transition-all ${
-                    months === m
+                  key={m.value}
+                  onClick={() => setMonths(m.value)}
+                  className={`rounded-lg border p-3 text-center font-display text-sm transition-all ${
+                    months === m.value
                       ? "border-primary bg-primary/10 text-primary box-glow"
                       : "border-border bg-background text-muted-foreground hover:border-primary/50"
                   }`}
                 >
-                  {m} {m === "1" ? "MES" : "MESES"}
+                  {m.label}
                 </button>
               ))}
             </div>
@@ -318,6 +351,7 @@ const Admin = () => {
                 const expiresAt = u.trial_ends_at
                   ? new Date(u.trial_ends_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
                   : "—";
+
                 const handleDeactivate = async () => {
                   setDeactivatingId(u.user_id);
                   try {
@@ -349,10 +383,7 @@ const Admin = () => {
                 };
 
                 return (
-                  <div
-                    key={u.user_id}
-                    className="rounded-lg border border-border bg-background p-3"
-                  >
+                  <div key={u.user_id} className="rounded-lg border border-border bg-background p-3">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
@@ -368,44 +399,87 @@ const Admin = () => {
                         {cfg.label}
                       </Badge>
                     </div>
-                    {(u.status === "premium" || u.status === "trial") && (
-                      <>
+
+                    <div className="mt-2 flex gap-2">
+                      {/* Deactivate Premium */}
+                      {(u.status === "premium" || u.status === "trial") && (
                         <button
                           onClick={() => setConfirmDeactivateId(u.user_id)}
                           disabled={deactivatingId === u.user_id}
-                          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
                         >
                           {deactivatingId === u.user_id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <XCircle className="h-3 w-3" />
                           )}
-                          {deactivatingId === u.user_id ? "Desactivando..." : "Desactivar Premium"}
+                          {deactivatingId === u.user_id ? "..." : "Desactivar"}
                         </button>
-                        {confirmDeactivateId === u.user_id && (
-                          <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-                            <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
-                              <AlertTriangle className="h-3.5 w-3.5" />
-                              ¿Desactivar premium de {u.email}?
-                            </div>
-                            <p className="mb-3 text-xs text-muted-foreground">El usuario perderá acceso a funciones premium.</p>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => setConfirmDeactivateId(null)}
-                                className="flex-1 rounded-md border border-border bg-background py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                              >
-                                Cancelar
-                              </button>
-                              <button
-                                onClick={() => { setConfirmDeactivateId(null); handleDeactivate(); }}
-                                className="flex-1 rounded-md bg-destructive py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
-                              >
-                                Sí, desactivar
-                              </button>
-                            </div>
-                          </div>
+                      )}
+
+                      {/* Delete User */}
+                      <button
+                        onClick={() => setConfirmDeleteId(u.user_id)}
+                        disabled={deletingId === u.user_id}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-red-600/30 bg-red-600/10 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-600/20 disabled:opacity-50"
+                      >
+                        {deletingId === u.user_id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
                         )}
-                      </>
+                        {deletingId === u.user_id ? "..." : "Eliminar"}
+                      </button>
+                    </div>
+
+                    {/* Confirm Deactivate */}
+                    {confirmDeactivateId === u.user_id && (
+                      <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                        <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-destructive">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          ¿Desactivar premium de {u.email}?
+                        </div>
+                        <p className="mb-3 text-xs text-muted-foreground">El usuario perderá acceso a funciones premium.</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setConfirmDeactivateId(null)}
+                            className="flex-1 rounded-md border border-border bg-background py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            onClick={() => { setConfirmDeactivateId(null); handleDeactivate(); }}
+                            className="flex-1 rounded-md bg-destructive py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                          >
+                            Sí, desactivar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Confirm Delete */}
+                    {confirmDeleteId === u.user_id && (
+                      <div className="mt-2 rounded-lg border border-red-600/30 bg-red-600/5 p-3">
+                        <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-red-500">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          ¿ELIMINAR a {u.email}?
+                        </div>
+                        <p className="mb-3 text-xs text-muted-foreground">Esta acción es irreversible. Se borrarán todos los datos del usuario.</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="flex-1 rounded-md border border-border bg-background py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(u.email, u.user_id)}
+                            className="flex-1 rounded-md bg-red-600 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+                          >
+                            Sí, eliminar
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
                 );
