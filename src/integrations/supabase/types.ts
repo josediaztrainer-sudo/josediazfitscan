@@ -348,6 +348,36 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_routines: {
+        Row: {
+          created_at: string
+          frequency_days: number | null
+          id: string
+          level: string | null
+          routine_content: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          frequency_days?: number | null
+          id?: string
+          level?: string | null
+          routine_content: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          frequency_days?: number | null
+          id?: string
+          level?: string | null
+          routine_content?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

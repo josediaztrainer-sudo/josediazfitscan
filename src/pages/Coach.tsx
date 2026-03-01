@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell } from "lucide-react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell, Save, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
 import coachBg from "@/assets/coach-bg.jpg";
 import RoutineBuilder from "@/components/RoutineBuilder";
+import SavedRoutines from "@/components/SavedRoutines";
 
 type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
@@ -36,6 +37,8 @@ const Coach = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showRoutineBuilder, setShowRoutineBuilder] = useState(false);
+  const [showSavedRoutines, setShowSavedRoutines] = useState(false);
+  const [savingRoutineIdx, setSavingRoutineIdx] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -385,6 +388,41 @@ const Coach = () => {
     }
   };
 
+  const isRoutineMessage = (content: string) => {
+    const routineKeywords = ["RUTINA", "DÍA 1", "Día 1", "Series", "Reps", "Ejercicio", "Descanso", "Calentamiento"];
+    return routineKeywords.filter((k) => content.includes(k)).length >= 2;
+  };
+
+  const saveRoutine = async (msgContent: string, idx: number) => {
+    if (!user) return;
+    setSavingRoutineIdx(idx);
+    try {
+      // Extract title from content
+      const titleMatch = msgContent.match(/\*\*RUTINA[^*]*\*\*/i) || msgContent.match(/RUTINA[^\n]*/i);
+      const title = titleMatch ? titleMatch[0].replace(/\*/g, "").trim().slice(0, 100) : "Mi rutina personalizada";
+      
+      // Try to extract frequency and level
+      const freqMatch = msgContent.match(/(\d)\s*días?\s*(a la semana|\/semana|por semana|semanales)/i);
+      const levelMatch = msgContent.match(/nivel[:\s]*(principiante|intermedio|avanzado)/i);
+
+      const { error } = await supabase.from("saved_routines" as any).insert({
+        user_id: user.id,
+        title,
+        routine_content: msgContent,
+        frequency_days: freqMatch ? parseInt(freqMatch[1]) : null,
+        level: levelMatch ? levelMatch[1].toLowerCase() : null,
+      } as any);
+
+      if (error) throw error;
+      toast.success("¡Rutina guardada! 💪 Accede desde el botón 📖");
+    } catch (err) {
+      console.error("Save routine error:", err);
+      toast.error("Error guardando la rutina");
+    } finally {
+      setSavingRoutineIdx(null);
+    }
+  };
+
   return (
     <div className="relative flex h-[100dvh] flex-col overflow-hidden">
       {/* Background */}
@@ -413,6 +451,15 @@ const Coach = () => {
               </div>
             </div>
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSavedRoutines(true)}
+                className="text-muted-foreground"
+                title="Mis rutinas guardadas"
+              >
+                <BookOpen className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -555,31 +602,51 @@ const Coach = () => {
           }}
         />
 
+        {/* Saved Routines Dialog */}
+        <SavedRoutines open={showSavedRoutines} onOpenChange={setShowSavedRoutines} />
+
         {/* Messages */}
         <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-20">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                  m.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-card/90 backdrop-blur-sm text-foreground"
-                }`}
-              >
-                {m.audioUrl ? (
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <Mic className="h-4 w-4 shrink-0" />
-                      <span className="text-xs font-medium">Mensaje de voz</span>
+              <div className={`max-w-[85%] ${m.role === "user" ? "" : ""}`}>
+                <div
+                  className={`rounded-lg px-3 py-2 text-sm ${
+                    m.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-card/90 backdrop-blur-sm text-foreground"
+                  }`}
+                >
+                  {m.audioUrl ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Mic className="h-4 w-4 shrink-0" />
+                        <span className="text-xs font-medium">Mensaje de voz</span>
+                      </div>
+                      <audio controls src={m.audioUrl} className="w-full max-w-[220px] h-8" />
                     </div>
-                    <audio controls src={m.audioUrl} className="w-full max-w-[220px] h-8" />
-                  </div>
-                ) : m.role === "assistant" ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_li]:my-0.5 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_table]:my-2 [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_th]:text-left [&_th]:font-display [&_th]:tracking-wide [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_td]:text-foreground [&_tr:nth-child(even)]:bg-card/50 [&_hr]:border-primary/20 [&_hr]:my-3 [&_h3]:text-primary [&_h3]:font-display [&_h3]:tracking-wider [&_h3]:text-base [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:text-primary [&_img]:rounded-lg [&_img]:my-2 [&_img]:max-h-40 [&_img]:object-cover [&_img]:border [&_img]:border-border">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  m.content
+                  ) : m.role === "assistant" ? (
+                    <div className="prose prose-sm prose-invert max-w-none [&_p]:my-1 [&_li]:my-0.5 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_table]:my-2 [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_th]:text-left [&_th]:font-display [&_th]:tracking-wide [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_td]:text-foreground [&_tr:nth-child(even)]:bg-card/50 [&_hr]:border-primary/20 [&_hr]:my-3 [&_h3]:text-primary [&_h3]:font-display [&_h3]:tracking-wider [&_h3]:text-base [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:text-primary [&_img]:rounded-lg [&_img]:my-2 [&_img]:max-h-40 [&_img]:object-cover [&_img]:border [&_img]:border-border">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    m.content
+                  )}
+                </div>
+                {/* Save routine button */}
+                {m.role === "assistant" && !loading && isRoutineMessage(m.content) && (
+                  <button
+                    onClick={() => saveRoutine(m.content, i)}
+                    disabled={savingRoutineIdx === i}
+                    className="mt-1 flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                  >
+                    {savingRoutineIdx === i ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Save className="h-3 w-3" />
+                    )}
+                    Guardar rutina
+                  </button>
                 )}
               </div>
             </div>
