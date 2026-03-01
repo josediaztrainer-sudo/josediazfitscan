@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff } from "lucide-react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
 import coachBg from "@/assets/coach-bg.jpg";
+import RoutineBuilder from "@/components/RoutineBuilder";
 
 type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
@@ -34,6 +35,7 @@ const Coach = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [showRoutineBuilder, setShowRoutineBuilder] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -489,6 +491,70 @@ const Coach = () => {
           </div>
         )}
 
+        {/* Routine Builder Dialog */}
+        <RoutineBuilder
+          open={showRoutineBuilder}
+          onOpenChange={setShowRoutineBuilder}
+          onSubmit={(prompt) => {
+            setInput(prompt);
+            setTimeout(() => {
+              const fakeEvent = { key: "Enter", shiftKey: false } as React.KeyboardEvent;
+              // Trigger send directly
+              const userMsg: Msg = { role: "user", content: prompt };
+              const updatedMessages = [...messages, userMsg];
+              setMessages(updatedMessages);
+              setInput("");
+              setLoading(true);
+              (async () => {
+                let convId = activeConvId;
+                if (!convId) convId = await createConversation(userMsg.content);
+                if (convId) await saveMessage(convId, "user", userMsg.content);
+                let assistantSoFar = "";
+                const upsertAssistant = (chunk: string) => {
+                  assistantSoFar += chunk;
+                  setMessages((prev) => {
+                    const last = prev[prev.length - 1];
+                    if (last?.role === "assistant" && prev.length === updatedMessages.length + 1) {
+                      return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+                    }
+                    return [...prev, { role: "assistant", content: assistantSoFar }];
+                  });
+                };
+                try {
+                  const resp = await fetch(CHAT_URL, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                    },
+                    body: JSON.stringify({
+                      messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+                      userContext,
+                    }),
+                  });
+                  if (!resp.ok) {
+                    const errData = await resp.json().catch(() => null);
+                    toast.error(errData?.error || `Error ${resp.status}`);
+                    setLoading(false);
+                    return;
+                  }
+                  if (!resp.body) throw new Error("No stream body");
+                  await processStream(resp.body, upsertAssistant);
+                  if (convId && assistantSoFar) {
+                    await saveMessage(convId, "assistant", assistantSoFar);
+                    loadConversations();
+                  }
+                } catch (err: any) {
+                  console.error("Routine generation error:", err);
+                  toast.error("Error generando tu rutina");
+                } finally {
+                  setLoading(false);
+                }
+              })();
+            }, 50);
+          }}
+        />
+
         {/* Messages */}
         <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-20">
           {messages.map((m, i) => (
@@ -531,6 +597,16 @@ const Coach = () => {
         {/* Input */}
         <div className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 mb-14 safe-bottom">
           <div className="mx-auto flex max-w-lg gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => setShowRoutineBuilder(true)}
+              disabled={loading || isRecording}
+              className="shrink-0"
+              title="Armar rutina ideal"
+            >
+              <Dumbbell className="h-4 w-4" />
+            </Button>
             <Button
               variant={isRecording ? "default" : "secondary"}
               size="icon"
