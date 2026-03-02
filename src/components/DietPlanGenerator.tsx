@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import DietQuestionnaire, { type DietQuestionnaireData } from "./DietQuestionnaire";
 
 interface FoodItem {
   name: string;
@@ -65,6 +66,8 @@ const MEAL_COUNTS = [
   { value: 5, label: "5 comidas", desc: "Desayuno + Snack AM + Almuerzo + Snack PM + Cena" },
 ];
 
+// Keep for backward compat but no longer used in the main flow
+
 const DietPlanGenerator = ({ targetCalories, targetProtein, targetCarbs, targetFat, sex, weightKg }: Props) => {
   const { user } = useAuth();
   const [showMealPicker, setShowMealPicker] = useState(false);
@@ -88,6 +91,50 @@ const DietPlanGenerator = ({ targetCalories, targetProtein, targetCarbs, targetF
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     if (data) setSavedDiets(data as any);
+  };
+
+  const handleQuestionnaireSubmit = async (data: DietQuestionnaireData) => {
+    setShowMealPicker(false);
+    setGenerating(true);
+    setCurrentMealsPerDay(data.mealsPerDay);
+
+    try {
+      const { data: result, error } = await supabase.functions.invoke("generate-diet", {
+        body: {
+          targetCalories, targetProtein, targetCarbs, targetFat,
+          mealsPerDay: data.mealsPerDay, sex, weightKg,
+          questionnaire: data,
+        },
+      });
+
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+
+      setDietPlan(result);
+      setShowPlan(true);
+
+      // Auto-save
+      if (user) {
+        try {
+          await supabase.from("saved_diets" as any).insert({
+            user_id: user.id,
+            diet_plan: result as any,
+            meals_per_day: data.mealsPerDay,
+            target_calories: targetCalories,
+            target_protein: targetProtein,
+            target_carbs: targetCarbs,
+            target_fat: targetFat,
+          } as any);
+          fetchSavedDiets();
+          toast.success("¡Dieta generada y guardada! 💪");
+        } catch { /* silent */ }
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Error generando dieta");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleGenerate = async (mealsPerDay: number) => {
@@ -184,34 +231,12 @@ const DietPlanGenerator = ({ targetCalories, targetProtein, targetCarbs, targetF
         )}
       </div>
 
-      {/* Meal count picker */}
-      <Dialog open={showMealPicker} onOpenChange={setShowMealPicker}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="font-display tracking-wide text-center">
-              ¿CUÁNTAS COMIDAS HACES AL DÍA?
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground text-center mb-2">
-            Esto nos ayuda a distribuir tus macros de forma óptima
-          </p>
-          <div className="space-y-2">
-            {MEAL_COUNTS.map((mc) => (
-              <button
-                key={mc.value}
-                onClick={() => handleGenerate(mc.value)}
-                className="flex w-full items-center justify-between rounded-lg border border-border bg-background p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{mc.label}</p>
-                  <p className="text-xs text-muted-foreground">{mc.desc}</p>
-                </div>
-                <Utensils className="h-4 w-4 text-primary" />
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Diet questionnaire wizard */}
+      <DietQuestionnaire
+        open={showMealPicker}
+        onOpenChange={setShowMealPicker}
+        onSubmit={handleQuestionnaireSubmit}
+      />
 
       {/* Diet plan display */}
       <Dialog open={showPlan} onOpenChange={setShowPlan}>
