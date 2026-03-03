@@ -265,8 +265,44 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
               </div>
             )}
 
-            {/* Step 3: Allergies */}
+            {/* Step 3: Food Preferences */}
             {step === 3 && (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground text-center mb-2">
+                  ¿Tienes alguna preferencia alimenticia?
+                </p>
+                {FOOD_PREFERENCE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => toggleItem(foodPreferences, setFoodPreferences, opt.id, "no_preference")}
+                    className={`flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-all ${
+                      foodPreferences.includes(opt.id)
+                        ? "border-primary bg-primary/10 ring-1 ring-primary"
+                        : "border-border bg-background hover:border-primary/50"
+                    }`}
+                  >
+                    <span className="text-lg">{opt.emoji}</span>
+                    <span className="flex-1 text-sm text-foreground">{opt.label}</span>
+                    {foodPreferences.includes(opt.id) && <Check className="h-4 w-4 text-primary" />}
+                  </button>
+                ))}
+                {!foodPreferences.includes("no_preference") && (
+                  <div className="mt-2">
+                    <Label className="text-xs text-muted-foreground">Otra preferencia (opcional)</Label>
+                    <Input
+                      value={otherPreference}
+                      onChange={(e) => setOtherPreference(e.target.value)}
+                      placeholder="Ej: sin mariscos, solo pollo y pescado..."
+                      className="text-sm mt-1"
+                      maxLength={200}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 4: Allergies */}
+            {step === 4 && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground text-center mb-2">
                   ¿Tienes alguna alergia o intolerancia alimentaria?
