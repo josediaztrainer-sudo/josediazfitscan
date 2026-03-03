@@ -337,8 +337,8 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
               </div>
             )}
 
-            {/* Step 4: Digestive issues */}
-            {step === 4 && (
+            {/* Step 5: Digestive issues */}
+            {step === 5 && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground text-center mb-2">
                   ¿Padeces alguna patología digestiva?
@@ -373,8 +373,8 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
               </div>
             )}
 
-            {/* Step 5: Diseases */}
-            {step === 5 && (
+            {/* Step 6: Diseases */}
+            {step === 6 && (
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground text-center mb-2">
                   ¿Tienes alguna condición de salud que debamos considerar?
