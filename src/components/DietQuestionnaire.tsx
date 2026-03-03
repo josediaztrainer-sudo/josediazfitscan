@@ -53,7 +53,17 @@ const MEAL_OPTIONS = [
   { value: 5, label: "5 comidas", desc: "Desayuno + Snack AM + Almuerzo + Snack PM + Cena" },
 ];
 
-const ALLERGY_OPTIONS = [
+const FOOD_PREFERENCE_OPTIONS = [
+  { id: "no_preference", label: "Sin preferencia específica (como de todo)", emoji: "🍽️" },
+  { id: "vegetarian", label: "Vegetariano (sin carne ni pescado)", emoji: "🥬" },
+  { id: "no_pork", label: "Sin cerdo", emoji: "🐷" },
+  { id: "no_red_meat", label: "Sin carnes rojas", emoji: "🥩" },
+  { id: "peruvian", label: "Preferencia por comida peruana", emoji: "🇵🇪" },
+  { id: "mediterranean", label: "Estilo mediterráneo", emoji: "🫒" },
+  { id: "high_protein", label: "Alto en proteína animal", emoji: "🍗" },
+  { id: "pescatarian", label: "Pescatariano (pescado sí, carne no)", emoji: "🐟" },
+];
+
   { id: "lactose", label: "Lácteos / Intolerancia a la lactosa", emoji: "🥛" },
   { id: "gluten", label: "Gluten / Celiaquía", emoji: "🌾" },
   { id: "eggs", label: "Huevos", emoji: "🥚" },
@@ -91,6 +101,8 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
   const [lifestyle, setLifestyle] = useState("");
   const [mealsPerDay, setMealsPerDay] = useState(0);
   const [mealTimes, setMealTimes] = useState("");
+  const [foodPreferences, setFoodPreferences] = useState<string[]>([]);
+  const [otherPreference, setOtherPreference] = useState("");
   const [allergies, setAllergies] = useState<string[]>([]);
   const [otherAllergy, setOtherAllergy] = useState("");
   const [digestiveIssues, setDigestiveIssues] = useState<string[]>([]);
@@ -112,15 +124,16 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
       case 0: return lifestyle !== "";
       case 1: return mealsPerDay > 0;
       case 2: return mealTimes.trim() !== "";
-      case 3: return allergies.length > 0;
-      case 4: return digestiveIssues.length > 0;
-      case 5: return diseases.length > 0;
+      case 3: return foodPreferences.length > 0;
+      case 4: return allergies.length > 0;
+      case 5: return digestiveIssues.length > 0;
+      case 6: return diseases.length > 0;
       default: return false;
     }
   };
 
   const handleSubmit = () => {
-    onSubmit({ lifestyle, mealsPerDay, mealTimes, allergies, otherAllergy, digestiveIssues, otherDigestive, diseases, otherDisease });
+    onSubmit({ lifestyle, mealsPerDay, mealTimes, foodPreferences, otherPreference, allergies, otherAllergy, digestiveIssues, otherDigestive, diseases, otherDisease });
     resetForm();
   };
 
@@ -129,6 +142,8 @@ const DietQuestionnaire = ({ open, onOpenChange, onSubmit }: Props) => {
     setLifestyle("");
     setMealsPerDay(0);
     setMealTimes("");
+    setFoodPreferences([]);
+    setOtherPreference("");
     setAllergies([]);
     setOtherAllergy("");
     setDigestiveIssues([]);
