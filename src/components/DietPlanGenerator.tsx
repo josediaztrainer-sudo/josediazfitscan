@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import DietQuestionnaire, { type DietQuestionnaireData } from "./DietQuestionnaire";
+import EditableMealSection from "./EditableMealSection";
 
 interface FoodItem {
   name: string;
