@@ -64,6 +64,7 @@ const FOOD_PREFERENCE_OPTIONS = [
   { id: "pescatarian", label: "Pescatariano (pescado sí, carne no)", emoji: "🐟" },
 ];
 
+const ALLERGY_OPTIONS = [
   { id: "lactose", label: "Lácteos / Intolerancia a la lactosa", emoji: "🥛" },
   { id: "gluten", label: "Gluten / Celiaquía", emoji: "🌾" },
   { id: "eggs", label: "Huevos", emoji: "🥚" },
