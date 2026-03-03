@@ -12,6 +12,8 @@ export interface DietQuestionnaireData {
   lifestyle: string;
   mealsPerDay: number;
   mealTimes: string;
+  foodPreferences: string[];
+  otherPreference: string;
   allergies: string[];
   otherAllergy: string;
   digestiveIssues: string[];

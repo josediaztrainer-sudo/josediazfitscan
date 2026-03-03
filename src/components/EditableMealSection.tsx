@@ -84,14 +84,6 @@ const EditableMealSection = ({ meal, mealIndex, onMealUpdate }: Props) => {
     updateOption(optIdx, foods);
   };
 
-  const addFood = (optIdx: number) => {
-    if (!newFood.name.trim()) return;
-    const foods = [...meal.options[optIdx].foods, { ...newFood }];
-    updateOption(optIdx, foods);
-    setAddingTo(null);
-    setNewFood({ name: "", amount: "", calories: 0, protein: 0, carbs: 0, fat: 0 });
-  };
-
   return (
     <div className="rounded-lg border border-border overflow-hidden">
       <div className="bg-primary/10 px-3 py-2">
