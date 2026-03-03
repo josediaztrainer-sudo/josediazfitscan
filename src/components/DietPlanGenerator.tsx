@@ -253,7 +253,17 @@ const DietPlanGenerator = ({ targetCalories, targetProtein, targetCarbs, targetF
           {dietPlan && (
             <div className="space-y-4">
               {dietPlan.meals.map((meal, i) => (
-                <MealSection key={i} meal={meal} />
+                <EditableMealSection
+                  key={i}
+                  meal={meal}
+                  mealIndex={i}
+                  onMealUpdate={(idx, updatedMeal) => {
+                    const updated = { ...dietPlan };
+                    updated.meals = [...dietPlan.meals];
+                    updated.meals[idx] = updatedMeal;
+                    setDietPlan(updated);
+                  }}
+                />
               ))}
             </div>
           )}
