@@ -32,6 +32,7 @@ const STEPS = [
   { icon: Activity, title: "RITMO DE VIDA", emoji: "🏃" },
   { icon: Utensils, title: "COMIDAS AL DÍA", emoji: "🍽️" },
   { icon: Clock, title: "HORARIOS", emoji: "⏰" },
+  { icon: Heart, title: "PREFERENCIAS ALIMENTICIAS", emoji: "🥗" },
   { icon: AlertTriangle, title: "ALERGIAS ALIMENTARIAS", emoji: "⚠️" },
   { icon: Stethoscope, title: "SALUD DIGESTIVA", emoji: "🩺" },
   { icon: Heart, title: "CONDICIONES DE SALUD", emoji: "❤️‍🩹" },

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, Pencil, Trash2, Plus, Check, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -45,8 +45,6 @@ const EditableMealSection = ({ meal, mealIndex, onMealUpdate }: Props) => {
   const [openOption, setOpenOption] = useState<number | null>(0);
   const [editingFood, setEditingFood] = useState<{ optIdx: number; foodIdx: number } | null>(null);
   const [editForm, setEditForm] = useState<FoodItem | null>(null);
-  const [addingTo, setAddingTo] = useState<number | null>(null);
-  const [newFood, setNewFood] = useState<FoodItem>({ name: "", amount: "", calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   const recalcOption = (foods: FoodItem[]): Omit<MealOption, "name"> => ({
     foods,
@@ -212,69 +210,6 @@ const EditableMealSection = ({ meal, mealIndex, onMealUpdate }: Props) => {
                     ))}
 
                     {/* Add food form */}
-                    {addingTo === optIdx ? (
-                      <div className="rounded-md border border-dashed border-primary/30 p-2 space-y-1.5 mt-1">
-                        <div className="flex gap-1.5">
-                          <Input
-                            value={newFood.name}
-                            onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-                            placeholder="Alimento"
-                            className="h-7 text-xs flex-1"
-                          />
-                          <Input
-                            value={newFood.amount}
-                            onChange={(e) => setNewFood({ ...newFood, amount: e.target.value })}
-                            placeholder="Cantidad"
-                            className="h-7 text-xs w-24"
-                          />
-                        </div>
-                        <div className="flex gap-1.5">
-                          <Input
-                            type="number"
-                            value={newFood.calories || ""}
-                            onChange={(e) => setNewFood({ ...newFood, calories: +e.target.value })}
-                            placeholder="kcal"
-                            className="h-7 text-xs w-16"
-                          />
-                          <Input
-                            type="number"
-                            value={newFood.protein || ""}
-                            onChange={(e) => setNewFood({ ...newFood, protein: +e.target.value })}
-                            placeholder="P"
-                            className="h-7 text-xs w-14"
-                          />
-                          <Input
-                            type="number"
-                            value={newFood.carbs || ""}
-                            onChange={(e) => setNewFood({ ...newFood, carbs: +e.target.value })}
-                            placeholder="C"
-                            className="h-7 text-xs w-14"
-                          />
-                          <Input
-                            type="number"
-                            value={newFood.fat || ""}
-                            onChange={(e) => setNewFood({ ...newFood, fat: +e.target.value })}
-                            placeholder="G"
-                            className="h-7 text-xs w-14"
-                          />
-                        </div>
-                        <div className="flex gap-1">
-                          <Button size="sm" onClick={() => addFood(optIdx)} className="h-6 text-xs px-2 gap-1">
-                            <Check className="h-3 w-3" /> Agregar
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setAddingTo(null)} className="h-6 text-xs px-2 gap-1">
-                            <X className="h-3 w-3" /> Cancelar
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setAddingTo(optIdx)}
-                        className="flex items-center gap-1 text-xs text-primary/70 hover:text-primary mt-1 transition-colors"
-                      >
-                        <Plus className="h-3 w-3" /> Agregar alimento
-                      </button>
-                    )}
 
                     {/* Totals */}
                     <div className="mt-2 flex gap-2 border-t border-border pt-2 text-xs font-medium">
