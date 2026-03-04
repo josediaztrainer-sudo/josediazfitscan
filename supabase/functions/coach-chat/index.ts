@@ -246,17 +246,20 @@ CUANDO TE PIDAN UNA RUTINA, SIEMPRE usa este formato con TABLAS MARKDOWN:
 REGLAS DE FORMATO:
 - SIEMPRE usar tablas markdown con headers y separadores correctos
 - SIEMPRE incluir columna "Variante en casa 🏠" con ejercicio equivalente SIN equipo
-- SIEMPRE incluir columna "🎥 Técnica" con enlace clickeable de YouTube
+- SIEMPRE incluir columna "🎥 Técnica" con enlace clickeable de YouTube para ABSOLUTAMENTE TODOS los ejercicios sin excepción
 - SIEMPRE numerar los ejercicios
 - Usar emojis en los headers de cada día
 - Incluir calentamiento y enfriamiento en CADA día
 - Personalizar ejercicios al género del usuario
 - Si piden rutina EN CASA, usar SOLO ejercicios bodyweight y dar progresiones
+- ⚠️ REGLA CRÍTICA: NINGÚN ejercicio en la tabla puede quedar SIN enlace de YouTube. Si el ejercicio exacto no está en la lista de abajo, usa el enlace del ejercicio más parecido. TODOS los ejercicios DEBEN tener su columna "🎥 Técnica" con [Ver técnica](URL).
 
 ═══════════════════════════════════════
 🎥 ENLACES DE YOUTUBE — TÉCNICA CORRECTA
 ═══════════════════════════════════════
-Para CADA ejercicio incluye enlace de YouTube. Formato: [Ver técnica](https://www.youtube.com/watch?v=VIDEO_ID)
+⚠️ OBLIGATORIO: TODOS Y CADA UNO de los ejercicios de la rutina DEBEN tener un enlace de YouTube.
+No puede haber NINGUNA fila en la tabla sin enlace. Si un ejercicio no tiene video exacto, usa el del ejercicio más similar.
+Formato: [Ver técnica](https://www.youtube.com/watch?v=VIDEO_ID)
 
 🏋️ GIMNASIO:
 - Press banca: https://www.youtube.com/watch?v=gRVjAtPip0Y
@@ -284,6 +287,14 @@ Para CADA ejercicio incluye enlace de YouTube. Formato: [Ver técnica](https://w
 - Sentadilla búlgara: https://www.youtube.com/watch?v=2C-uNgKwPLE
 - Sentadilla sumo: https://www.youtube.com/watch?v=4ZhtoAHafg0
 - Pantorrillas: https://www.youtube.com/watch?v=gwLzBJYoWlI
+- Encogimientos de hombros (trapecios): https://www.youtube.com/watch?v=cJRVVxmytaM
+- Patada de tríceps: https://www.youtube.com/watch?v=6SS6K3lAwZ8
+- Predicador curl (Scott): https://www.youtube.com/watch?v=ykJmrZ5v0Oo
+- Cruce de poleas (pecho): https://www.youtube.com/watch?v=eozdVDA78K0
+- Pullover con mancuerna: https://www.youtube.com/watch?v=eozdVDA78K0
+- Hack squat: https://www.youtube.com/watch?v=IZxyjW7MPJQ
+- Abducción de cadera (máquina): https://www.youtube.com/watch?v=SEdqd1n0icg
+- Aducción de cadera (máquina): https://www.youtube.com/watch?v=SEdqd1n0icg
 
 🏠 EN CASA (sin equipo):
 - Flexiones: https://www.youtube.com/watch?v=IODxDxX7oi4
@@ -297,8 +308,15 @@ Para CADA ejercicio incluye enlace de YouTube. Formato: [Ver técnica](https://w
 - Sentadilla con salto: https://www.youtube.com/watch?v=A-cFYGvaKJw
 - Crunch abdominal: https://www.youtube.com/watch?v=Xyd_fa5zoEU
 - Bicicleta abdominal: https://www.youtube.com/watch?v=9FGilxCbdz8
+- Jumping jacks: https://www.youtube.com/watch?v=c4DAnQ6DtF8
+- Flexiones diamante: https://www.youtube.com/watch?v=IODxDxX7oi4
+- Flexiones declinadas: https://www.youtube.com/watch?v=IODxDxX7oi4
+- Step ups (subir escalón): https://www.youtube.com/watch?v=QOVaHnm-kDY
+- Elevación de piernas: https://www.youtube.com/watch?v=Xyd_fa5zoEU
+- Patada de glúteo (donkey kick): https://www.youtube.com/watch?v=OUgsJ8-Vi0E
+- Sentadilla isométrica (wall sit): https://www.youtube.com/watch?v=aclHkVaku9U
 
-REGLAS: Usa SOLO estos enlaces. NUNCA inventes URLs. Si no está en la lista, usa el más similar.
+⚠️ REGLA FINAL: Si incluyes un ejercicio que NO aparece arriba, asígnale el enlace del ejercicio más similar de la lista. JAMÁS dejes una fila sin enlace de YouTube.
 
 ═══════════════════════════════════════
 🏠 RUTINAS EN CASA — REGLAS ESPECIALES
