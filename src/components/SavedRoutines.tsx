@@ -86,8 +86,19 @@ const SavedRoutines = ({ open, onOpenChange }: Props) => {
                 </span>
               )}
             </div>
-            <div className="prose prose-sm prose-invert max-w-none rounded-lg border border-border bg-background p-3 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_h3]:text-primary [&_strong]:text-primary">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{viewingRoutine.routine_content}</ReactMarkdown>
+            <div className="prose prose-sm prose-invert max-w-none rounded-lg border border-border bg-background p-3 [&_table]:w-full [&_table]:text-xs [&_table]:border-collapse [&_th]:bg-primary/20 [&_th]:text-primary [&_th]:px-2 [&_th]:py-1 [&_th]:border [&_th]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:border [&_td]:border-border [&_h3]:text-primary [&_strong]:text-primary [&_a]:text-primary [&_a]:underline [&_a]:font-semibold">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children, ...props }) => (
+                    <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {viewingRoutine.routine_content}
+              </ReactMarkdown>
             </div>
           </div>
         ) : loading ? (
