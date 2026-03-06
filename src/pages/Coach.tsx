@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell, Save, BookOpen } from "lucide-react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell, Save, BookOpen, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import joseAvatar from "@/assets/jose-coach-avatar.jpeg";
 import coachBg from "@/assets/coach-bg.jpg";
 import RoutineBuilder from "@/components/RoutineBuilder";
+import HomeRoutineBuilder from "@/components/HomeRoutineBuilder";
 import SavedRoutines from "@/components/SavedRoutines";
 
 type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
