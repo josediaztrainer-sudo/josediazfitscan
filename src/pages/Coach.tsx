@@ -745,9 +745,19 @@ const Coach = () => {
               onClick={() => setShowRoutineBuilder(true)}
               disabled={loading || isRecording}
               className="shrink-0"
-              title="Armar rutina ideal"
+              title="Rutina de gimnasio"
             >
               <Dumbbell className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => setShowHomeRoutineBuilder(true)}
+              disabled={loading || isRecording}
+              className="shrink-0"
+              title="Rutina en casa"
+            >
+              <Home className="h-4 w-4" />
             </Button>
             <Button
               variant={isRecording ? "default" : "secondary"}
