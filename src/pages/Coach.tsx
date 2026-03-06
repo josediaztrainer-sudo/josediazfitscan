@@ -38,6 +38,7 @@ const Coach = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showRoutineBuilder, setShowRoutineBuilder] = useState(false);
+  const [showHomeRoutineBuilder, setShowHomeRoutineBuilder] = useState(false);
   const [showSavedRoutines, setShowSavedRoutines] = useState(false);
   const [savingRoutineIdx, setSavingRoutineIdx] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
