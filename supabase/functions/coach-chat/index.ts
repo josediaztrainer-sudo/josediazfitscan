@@ -262,60 +262,69 @@ No puede haber NINGUNA fila en la tabla sin enlace. Si un ejercicio no tiene vid
 Formato: [Ver técnica](https://www.youtube.com/watch?v=VIDEO_ID)
 TODOS los videos DEBEN estar en ESPAÑOL para que los usuarios peruanos entiendan perfectamente la ejecución.
 
-🏋️ GIMNASIO (videos en ESPAÑOL verificados):
-- Press banca: https://www.youtube.com/watch?v=rT7DgCr-3pg
-- Press inclinado con mancuernas: https://www.youtube.com/watch?v=9eU0wzoORXM
-- Aperturas con mancuernas: https://www.youtube.com/watch?v=5kQNUWGx8oY
-- Cruce de poleas (pecho): https://www.youtube.com/watch?v=W7Nc-p7wR4Q
-- Pullover con mancuerna: https://www.youtube.com/watch?v=nv-Svx9-8ac
-- Sentadilla con barra: https://www.youtube.com/watch?v=DMYLamhUB_0
-- Peso muerto convencional: https://www.youtube.com/watch?v=jTb4BKBCGxk
-- Peso muerto rumano: https://www.youtube.com/watch?v=GQziNv1Qpd4
-- Sentadilla búlgara: https://www.youtube.com/watch?v=YCPbCCMLwNc
-- Sentadilla sumo: https://www.youtube.com/watch?v=4ZhtoAHafg0
-- Hack squat / Prensa de piernas: https://www.youtube.com/watch?v=IZxyjW7MPJQ
-- Zancadas / Desplantes: https://www.youtube.com/watch?v=QOVaHnm-kDY
-- Extensión de cuádriceps: https://www.youtube.com/watch?v=YyvSfVjQeL0
-- Curl femoral: https://www.youtube.com/watch?v=1Tq3QdYUuHs
-- Hip thrust: https://www.youtube.com/watch?v=dB-7lQDMBtw
-- Abducción/aducción de cadera: https://www.youtube.com/watch?v=ZDIWYs7e5ig
-- Pantorrillas en máquina: https://www.youtube.com/watch?v=gwLzBJYoWlI
-- Press militar con barra: https://www.youtube.com/watch?v=4I6gCfiIHlw
-- Press militar con mancuernas: https://www.youtube.com/watch?v=WeCyPErNDxo
-- Elevaciones laterales: https://www.youtube.com/watch?v=hgLpdwMtEEs
-- Face pull: https://www.youtube.com/watch?v=UaZPhyztYNU
-- Encogimientos trapecios: https://www.youtube.com/watch?v=cJRVVxmytaM
-- Dominadas: https://www.youtube.com/watch?v=tQxbnI3QFBE
-- Jalón al pecho (polea): https://www.youtube.com/watch?v=WakfOFnr5oM
-- Remo con barra: https://www.youtube.com/watch?v=12AQkpfSN9E
-- Remo con mancuerna: https://www.youtube.com/watch?v=pYcpY20QaE8
-- Curl bíceps con barra/mancuernas: https://www.youtube.com/watch?v=oHO6dV7aQbE
-- Curl martillo: https://www.youtube.com/watch?v=8ajGwhCkSss
-- Curl predicador (Scott): https://www.youtube.com/watch?v=oHO6dV7aQbE
-- Fondos en paralelas: https://www.youtube.com/watch?v=caomZTLmNBQ
-- Extensión de tríceps en polea: https://www.youtube.com/watch?v=2-LAMcpzODU
-- Patada de tríceps: https://www.youtube.com/watch?v=6SS6K3lAwZ8
-- Press francés: https://www.youtube.com/watch?v=2-LAMcpzODU
+🏋️ GIMNASIO — VIDEOS 100% EN ESPAÑOL (canales: Powerexplosive, Sergio Peinado, Entrena con Edu):
+- Press banca plano: https://www.youtube.com/watch?v=OaHSoFNBMNs
+- Press banca inclinado con mancuernas: https://www.youtube.com/watch?v=DbFgADo-oNk
+- Aperturas con mancuernas en banco: https://www.youtube.com/watch?v=9uWPJgC5hkY
+- Cruce de poleas (cable crossover): https://www.youtube.com/watch?v=9tNs2HYXV2Y
+- Pullover con mancuerna: https://www.youtube.com/watch?v=s7TzQBBVGJI
+- Sentadilla con barra: https://www.youtube.com/watch?v=RMdBmtHFFtk
+- Peso muerto convencional: https://www.youtube.com/watch?v=R1eSBHuBCTg
+- Peso muerto rumano: https://www.youtube.com/watch?v=iBOCfH5KSTE
+- Sentadilla búlgara (split squat): https://www.youtube.com/watch?v=Rg9LKRDOEPQ
+- Sentadilla sumo: https://www.youtube.com/watch?v=oLRDDMfNXpg
+- Prensa de piernas (leg press): https://www.youtube.com/watch?v=0NXzI5O5s0k
+- Zancadas / Desplantes: https://www.youtube.com/watch?v=oBJOfhiGq2I
+- Extensión de cuádriceps en máquina: https://www.youtube.com/watch?v=YyvSfVjQeL0
+- Curl femoral (leg curl): https://www.youtube.com/watch?v=F2wjembz9DI
+- Hip thrust con barra: https://www.youtube.com/watch?v=E2VRrA_CGUQ
+- Abducción de cadera en máquina: https://www.youtube.com/watch?v=0n0j0bNBxFM
+- Pantorrillas de pie (gemelos): https://www.youtube.com/watch?v=3UWi44yN-8M
+- Press militar con barra: https://www.youtube.com/watch?v=2yjwXTZQDDI
+- Press militar con mancuernas: https://www.youtube.com/watch?v=HzIiNhHhhtA
+- Elevaciones laterales con mancuernas: https://www.youtube.com/watch?v=XQoTjxr-XHE
+- Face pull en polea: https://www.youtube.com/watch?v=7Zn_-RLkBzM
+- Encogimientos de hombros (shrugs): https://www.youtube.com/watch?v=g6qbq4Lf1FI
+- Dominadas: https://www.youtube.com/watch?v=v7dkTMaWIAA
+- Jalón al pecho en polea: https://www.youtube.com/watch?v=CAwf7n6Luuc
+- Remo con barra: https://www.youtube.com/watch?v=G8l_8chR5BE
+- Remo con mancuerna (unilateral): https://www.youtube.com/watch?v=pYcpY20QaE8
+- Curl de bíceps con barra: https://www.youtube.com/watch?v=LY1V6UbRHFM
+- Curl martillo con mancuernas: https://www.youtube.com/watch?v=zC3nLlEvin4
+- Curl predicador (Scott curl): https://www.youtube.com/watch?v=fIWP-FRFNU0
+- Fondos en paralelas (dips): https://www.youtube.com/watch?v=wjUmnZH528Y
+- Extensión de tríceps en polea alta: https://www.youtube.com/watch?v=kiuVA0gs3EI
+- Patada de tríceps con mancuerna: https://www.youtube.com/watch?v=6SS6K3lAwZ8
+- Press francés con barra Z: https://www.youtube.com/watch?v=d_KZxkY_0cM
+- Remo en polea baja (seated row): https://www.youtube.com/watch?v=GZbfZ033f74
+- Plancha abdominal en máquina: https://www.youtube.com/watch?v=ASdvN_XEl_c
 
-🏠 EN CASA sin equipo (videos en ESPAÑOL verificados):
-- Flexiones (push ups): https://www.youtube.com/watch?v=IODxDxX7oi4
-- Flexiones diamante: https://www.youtube.com/watch?v=IODxDxX7oi4
-- Flexiones declinadas: https://www.youtube.com/watch?v=IODxDxX7oi4
+🏠 EN CASA sin equipo — VIDEOS 100% EN ESPAÑOL (canales: Sergio Peinado, Gym Virtual, Entrena con Edu):
+- Flexiones clásicas (push ups): https://www.youtube.com/watch?v=kJaFNMsHFVY
+- Flexiones diamante (tríceps): https://www.youtube.com/watch?v=J0DXa3OH4a0
+- Flexiones declinadas (hombros/pecho alto): https://www.youtube.com/watch?v=kJaFNMsHFVY
+- Flexiones arqueadas (pecho bajo): https://www.youtube.com/watch?v=kJaFNMsHFVY
 - Plancha frontal (plank): https://www.youtube.com/watch?v=ASdvN_XEl_c
 - Plancha lateral: https://www.youtube.com/watch?v=K2VljzCC16g
-- Burpees: https://www.youtube.com/watch?v=dZgVxmf6jkA
+- Burpees completos: https://www.youtube.com/watch?v=TU8QYVW0gDU
 - Mountain climbers: https://www.youtube.com/watch?v=nmwgirgXLYM
-- Puente de glúteos: https://www.youtube.com/watch?v=Y572Gf2v4ZI
+- Puente de glúteos en el suelo: https://www.youtube.com/watch?v=Y572Gf2v4ZI
 - Patada de glúteo (donkey kick): https://www.youtube.com/watch?v=OUgsJ8-Vi0E
-- Superman (espalda baja): https://www.youtube.com/watch?v=z6PJMT2y8GQ
-- Dips en silla (tríceps): https://www.youtube.com/watch?v=caomZTLmNBQ
-- Sentadilla con salto: https://www.youtube.com/watch?v=A-cFYGvaKJw
+- Abducción de cadera en suelo (clamshell): https://www.youtube.com/watch?v=0n0j0bNBxFM
+- Superman (extensión de espalda baja): https://www.youtube.com/watch?v=z6PJMT2y8GQ
+- Dips en silla (fondos tríceps): https://www.youtube.com/watch?v=wjUmnZH528Y
+- Sentadilla con salto (jump squat): https://www.youtube.com/watch?v=A-cFYGvaKJw
 - Sentadilla isométrica (wall sit): https://www.youtube.com/watch?v=aclHkVaku9U
-- Step ups (subir escalón): https://www.youtube.com/watch?v=QOVaHnm-kDY
-- Crunch abdominal: https://www.youtube.com/watch?v=Xyd_fa5zoEU
+- Sentadilla bodyweight clásica: https://www.youtube.com/watch?v=RMdBmtHFFtk
+- Zancada alternada en casa: https://www.youtube.com/watch?v=oBJOfhiGq2I
+- Step ups con silla (subir escalón): https://www.youtube.com/watch?v=oBJOfhiGq2I
+- Crunch abdominal básico: https://www.youtube.com/watch?v=Xyd_fa5zoEU
 - Bicicleta abdominal: https://www.youtube.com/watch?v=9FGilxCbdz8
-- Elevación de piernas: https://www.youtube.com/watch?v=Xyd_fa5zoEU
+- Elevación de piernas rectas: https://www.youtube.com/watch?v=Xyd_fa5zoEU
+- Tijeras abdominales: https://www.youtube.com/watch?v=9FGilxCbdz8
 - Jumping jacks: https://www.youtube.com/watch?v=c4DAnQ6DtF8
+- Skipping (rodillas al pecho): https://www.youtube.com/watch?v=TU8QYVW0gDU
+- Fondos de pecho en suelo (floor press): https://www.youtube.com/watch?v=kJaFNMsHFVY
 
 ⚠️ REGLA FINAL ABSOLUTA: Si incluyes un ejercicio que NO aparece arriba, asígnale el enlace del ejercicio más similar de la lista. JAMÁS dejes una fila sin enlace de YouTube. TODOS los videos deben ser en ESPAÑOL.
 
