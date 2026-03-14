@@ -111,7 +111,7 @@ const HomeRoutineBuilder = ({ open, onOpenChange, onSubmit }: Props) => {
 🧰 **Equipamiento disponible:** ${equipLabels}
 ⚠️ **Restricciones de salud:** ${restrictionLabels}${extra}
 
-Por favor genera una rutina COMPLETA EN CASA con ejercicios bodyweight y/o con el equipamiento que tengo. Incluye tablas con series, repeticiones, descansos, progresiones por nivel y tips. Incluye variantes más fáciles y más difíciles para cada ejercicio. Todos los ejercicios deben tener enlace de video de YouTube EN ESPAÑOL. Si tengo restricciones, adapta los ejercicios para no poner en riesgo mi salud.`;
+Por favor genera una rutina COMPLETA EN CASA con ejercicios bodyweight y/o con el equipamiento que tengo. Incluye tablas con series, repeticiones, descansos, progresiones por nivel y tips. Incluye variantes más fáciles y más difíciles para cada ejercicio. Si tengo restricciones, adapta los ejercicios para no poner en riesgo mi salud.`;
 
     onSubmit(prompt);
     onOpenChange(false);
