@@ -12,6 +12,7 @@ import coachBg from "@/assets/coach-bg.jpg";
 import RoutineBuilder from "@/components/RoutineBuilder";
 import HomeRoutineBuilder from "@/components/HomeRoutineBuilder";
 import SavedRoutines from "@/components/SavedRoutines";
+import ExerciseIllustration from "@/components/ExerciseIllustration";
 
 type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
