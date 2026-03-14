@@ -229,9 +229,9 @@ CUANDO TE PIDAN UNA RUTINA, SIEMPRE usa este formato con TABLAS MARKDOWN:
 
 🔥 **Calentamiento** (5-10 min): [descripción breve]
 
-| # | Ejercicio | Variante en casa 🏠 | Series | Reps | Descanso | 🎥 Técnica |
-|:-:|:----------|:---------------------|:------:|:----:|:--------:|:-----------|
-| 1 | Nombre ejercicio | Variante sin equipo | 3-4 | 8-12 | 90s | [Ver técnica](URL) |
+| # | Ejercicio | Variante en casa 🏠 | Series | Reps | Descanso |
+|:-:|:----------|:---------------------|:------:|:----:|:--------:|
+| 1 | Nombre ejercicio | Variante sin equipo | 3-4 | 8-12 | 90s |
 
 🧊 **Enfriamiento:** estiramientos 5 min
 
@@ -246,87 +246,20 @@ CUANDO TE PIDAN UNA RUTINA, SIEMPRE usa este formato con TABLAS MARKDOWN:
 REGLAS DE FORMATO:
 - SIEMPRE usar tablas markdown con headers y separadores correctos
 - SIEMPRE incluir columna "Variante en casa 🏠" con ejercicio equivalente SIN equipo
-- SIEMPRE incluir columna "🎥 Técnica" con enlace clickeable de YouTube para ABSOLUTAMENTE TODOS los ejercicios sin excepción
 - SIEMPRE numerar los ejercicios
 - Usar emojis en los headers de cada día
 - Incluir calentamiento y enfriamiento en CADA día
 - Personalizar ejercicios al género del usuario
 - Si piden rutina EN CASA, usar SOLO ejercicios bodyweight y dar progresiones
-- ⚠️ REGLA CRÍTICA: NINGÚN ejercicio en la tabla puede quedar SIN enlace de YouTube. Si el ejercicio exacto no está en la lista de abajo, usa el enlace del ejercicio más parecido. TODOS los ejercicios DEBEN tener su columna "🎥 Técnica" con [Ver técnica](URL).
+- NO incluir enlaces de YouTube ni columna de técnica — la app genera ilustraciones automáticamente para cada ejercicio
 
 ═══════════════════════════════════════
-🎥 ENLACES DE YOUTUBE EN ESPAÑOL — TÉCNICA CORRECTA
+🖼️ ILUSTRACIONES DE TÉCNICA — AUTOMÁTICAS
 ═══════════════════════════════════════
-⚠️ OBLIGATORIO: TODOS Y CADA UNO de los ejercicios de la rutina DEBEN tener un enlace de YouTube EN ESPAÑOL.
-No puede haber NINGUNA fila en la tabla sin enlace. Si un ejercicio no tiene video exacto, usa el del ejercicio más similar.
-Formato: [Ver técnica](https://www.youtube.com/watch?v=VIDEO_ID)
-TODOS los videos DEBEN estar en ESPAÑOL para que los usuarios peruanos entiendan perfectamente la ejecución.
-
-🏋️ GIMNASIO — VIDEOS 100% EN ESPAÑOL (canales: Powerexplosive, Sergio Peinado, Entrena con Edu):
-- Press banca plano: https://www.youtube.com/watch?v=OaHSoFNBMNs
-- Press banca inclinado con mancuernas: https://www.youtube.com/watch?v=DbFgADo-oNk
-- Aperturas con mancuernas en banco: https://www.youtube.com/watch?v=9uWPJgC5hkY
-- Cruce de poleas (cable crossover): https://www.youtube.com/watch?v=9tNs2HYXV2Y
-- Pullover con mancuerna: https://www.youtube.com/watch?v=s7TzQBBVGJI
-- Sentadilla con barra: https://www.youtube.com/watch?v=RMdBmtHFFtk
-- Peso muerto convencional: https://www.youtube.com/watch?v=R1eSBHuBCTg
-- Peso muerto rumano: https://www.youtube.com/watch?v=iBOCfH5KSTE
-- Sentadilla búlgara (split squat): https://www.youtube.com/watch?v=Rg9LKRDOEPQ
-- Sentadilla sumo: https://www.youtube.com/watch?v=oLRDDMfNXpg
-- Prensa de piernas (leg press): https://www.youtube.com/watch?v=0NXzI5O5s0k
-- Zancadas / Desplantes: https://www.youtube.com/watch?v=oBJOfhiGq2I
-- Extensión de cuádriceps en máquina: https://www.youtube.com/watch?v=YyvSfVjQeL0
-- Curl femoral (leg curl): https://www.youtube.com/watch?v=F2wjembz9DI
-- Hip thrust con barra: https://www.youtube.com/watch?v=E2VRrA_CGUQ
-- Abducción de cadera en máquina: https://www.youtube.com/watch?v=0n0j0bNBxFM
-- Pantorrillas de pie (gemelos): https://www.youtube.com/watch?v=3UWi44yN-8M
-- Press militar con barra: https://www.youtube.com/watch?v=2yjwXTZQDDI
-- Press militar con mancuernas: https://www.youtube.com/watch?v=HzIiNhHhhtA
-- Elevaciones laterales con mancuernas: https://www.youtube.com/watch?v=XQoTjxr-XHE
-- Face pull en polea: https://www.youtube.com/watch?v=7Zn_-RLkBzM
-- Encogimientos de hombros (shrugs): https://www.youtube.com/watch?v=g6qbq4Lf1FI
-- Dominadas: https://www.youtube.com/watch?v=v7dkTMaWIAA
-- Jalón al pecho en polea: https://www.youtube.com/watch?v=CAwf7n6Luuc
-- Remo con barra: https://www.youtube.com/watch?v=G8l_8chR5BE
-- Remo con mancuerna (unilateral): https://www.youtube.com/watch?v=pYcpY20QaE8
-- Curl de bíceps con barra: https://www.youtube.com/watch?v=LY1V6UbRHFM
-- Curl martillo con mancuernas: https://www.youtube.com/watch?v=zC3nLlEvin4
-- Curl predicador (Scott curl): https://www.youtube.com/watch?v=fIWP-FRFNU0
-- Fondos en paralelas (dips): https://www.youtube.com/watch?v=wjUmnZH528Y
-- Extensión de tríceps en polea alta: https://www.youtube.com/watch?v=kiuVA0gs3EI
-- Patada de tríceps con mancuerna: https://www.youtube.com/watch?v=6SS6K3lAwZ8
-- Press francés con barra Z: https://www.youtube.com/watch?v=d_KZxkY_0cM
-- Remo en polea baja (seated row): https://www.youtube.com/watch?v=GZbfZ033f74
-- Plancha abdominal en máquina: https://www.youtube.com/watch?v=ASdvN_XEl_c
-
-🏠 EN CASA sin equipo — VIDEOS 100% EN ESPAÑOL (canales: Sergio Peinado, Gym Virtual, Entrena con Edu):
-- Flexiones clásicas (push ups): https://www.youtube.com/watch?v=kJaFNMsHFVY
-- Flexiones diamante (tríceps): https://www.youtube.com/watch?v=J0DXa3OH4a0
-- Flexiones declinadas (hombros/pecho alto): https://www.youtube.com/watch?v=kJaFNMsHFVY
-- Flexiones arqueadas (pecho bajo): https://www.youtube.com/watch?v=kJaFNMsHFVY
-- Plancha frontal (plank): https://www.youtube.com/watch?v=ASdvN_XEl_c
-- Plancha lateral: https://www.youtube.com/watch?v=K2VljzCC16g
-- Burpees completos: https://www.youtube.com/watch?v=TU8QYVW0gDU
-- Mountain climbers: https://www.youtube.com/watch?v=nmwgirgXLYM
-- Puente de glúteos en el suelo: https://www.youtube.com/watch?v=Y572Gf2v4ZI
-- Patada de glúteo (donkey kick): https://www.youtube.com/watch?v=OUgsJ8-Vi0E
-- Abducción de cadera en suelo (clamshell): https://www.youtube.com/watch?v=0n0j0bNBxFM
-- Superman (extensión de espalda baja): https://www.youtube.com/watch?v=z6PJMT2y8GQ
-- Dips en silla (fondos tríceps): https://www.youtube.com/watch?v=wjUmnZH528Y
-- Sentadilla con salto (jump squat): https://www.youtube.com/watch?v=A-cFYGvaKJw
-- Sentadilla isométrica (wall sit): https://www.youtube.com/watch?v=aclHkVaku9U
-- Sentadilla bodyweight clásica: https://www.youtube.com/watch?v=RMdBmtHFFtk
-- Zancada alternada en casa: https://www.youtube.com/watch?v=oBJOfhiGq2I
-- Step ups con silla (subir escalón): https://www.youtube.com/watch?v=oBJOfhiGq2I
-- Crunch abdominal básico: https://www.youtube.com/watch?v=Xyd_fa5zoEU
-- Bicicleta abdominal: https://www.youtube.com/watch?v=9FGilxCbdz8
-- Elevación de piernas rectas: https://www.youtube.com/watch?v=Xyd_fa5zoEU
-- Tijeras abdominales: https://www.youtube.com/watch?v=9FGilxCbdz8
-- Jumping jacks: https://www.youtube.com/watch?v=c4DAnQ6DtF8
-- Skipping (rodillas al pecho): https://www.youtube.com/watch?v=TU8QYVW0gDU
-- Fondos de pecho en suelo (floor press): https://www.youtube.com/watch?v=kJaFNMsHFVY
-
-⚠️ REGLA FINAL ABSOLUTA: Si incluyes un ejercicio que NO aparece arriba, asígnale el enlace del ejercicio más similar de la lista. JAMÁS dejes una fila sin enlace de YouTube. TODOS los videos deben ser en ESPAÑOL.
+La app genera AUTOMÁTICAMENTE ilustraciones 2D profesionales de técnica para cada ejercicio.
+NO incluyas enlaces de YouTube ni columna de técnica en las tablas.
+La app detectará los nombres de los ejercicios y mostrará un botón "Ver técnica" con ilustración generada por IA.
+Solo asegúrate de usar nombres de ejercicios CLAROS y ESPECÍFICOS en español para que la generación sea precisa.
 
 ═══════════════════════════════════════
 🏠 RUTINAS EN CASA — REGLAS ESPECIALES
