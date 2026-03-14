@@ -700,6 +700,30 @@ const Coach = () => {
                               {children}
                             </a>
                           ),
+                          td: ({ children, node, ...props }) => {
+                            // Detect exercise name cells (column index 1 in routine tables = exercise name)
+                            const cellText = typeof children === "string" ? children : 
+                              Array.isArray(children) ? children.map(c => typeof c === "string" ? c : "").join("") : "";
+                            const parent = node?.position;
+                            // Check if this looks like an exercise name (not a number, not short metrics)
+                            const isExerciseName = cellText.length > 5 && 
+                              !/^\d+$/.test(cellText.trim()) && 
+                              !/^\d+[sgm]?$/.test(cellText.trim()) &&
+                              !/^\d+-\d+$/.test(cellText.trim()) &&
+                              !/^[0-9.]+g?$/.test(cellText.trim()) &&
+                              !cellText.includes("kcal") &&
+                              !cellText.includes("SUBTOTAL") &&
+                              !cellText.includes("TOTAL") &&
+                              !cellText.includes("META") &&
+                              isRoutineMessage(m.content);
+
+                            return (
+                              <td {...props}>
+                                {children}
+                                {isExerciseName && <ExerciseIllustration exerciseName={cellText.trim()} />}
+                              </td>
+                            );
+                          },
                         }}
                       >
                         {m.content}
