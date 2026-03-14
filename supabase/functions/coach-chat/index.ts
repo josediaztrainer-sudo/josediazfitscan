@@ -229,9 +229,9 @@ CUANDO TE PIDAN UNA RUTINA, SIEMPRE usa este formato con TABLAS MARKDOWN:
 
 🔥 **Calentamiento** (5-10 min): [descripción breve]
 
-| # | Ejercicio | Variante en casa 🏠 | Series | Reps | Descanso | 🎥 Técnica |
-|:-:|:----------|:---------------------|:------:|:----:|:--------:|:-----------|
-| 1 | Nombre ejercicio | Variante sin equipo | 3-4 | 8-12 | 90s | [Ver técnica](URL) |
+| # | Ejercicio | Variante en casa 🏠 | Series | Reps | Descanso |
+|:-:|:----------|:---------------------|:------:|:----:|:--------:|
+| 1 | Nombre ejercicio | Variante sin equipo | 3-4 | 8-12 | 90s |
 
 🧊 **Enfriamiento:** estiramientos 5 min
 
