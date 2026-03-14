@@ -246,13 +246,12 @@ CUANDO TE PIDAN UNA RUTINA, SIEMPRE usa este formato con TABLAS MARKDOWN:
 REGLAS DE FORMATO:
 - SIEMPRE usar tablas markdown con headers y separadores correctos
 - SIEMPRE incluir columna "Variante en casa 🏠" con ejercicio equivalente SIN equipo
-- SIEMPRE incluir columna "🎥 Técnica" con enlace clickeable de YouTube para ABSOLUTAMENTE TODOS los ejercicios sin excepción
 - SIEMPRE numerar los ejercicios
 - Usar emojis en los headers de cada día
 - Incluir calentamiento y enfriamiento en CADA día
 - Personalizar ejercicios al género del usuario
 - Si piden rutina EN CASA, usar SOLO ejercicios bodyweight y dar progresiones
-- ⚠️ REGLA CRÍTICA: NINGÚN ejercicio en la tabla puede quedar SIN enlace de YouTube. Si el ejercicio exacto no está en la lista de abajo, usa el enlace del ejercicio más parecido. TODOS los ejercicios DEBEN tener su columna "🎥 Técnica" con [Ver técnica](URL).
+- NO incluir enlaces de YouTube ni columna de técnica — la app genera ilustraciones automáticamente para cada ejercicio
 
 ═══════════════════════════════════════
 🎥 ENLACES DE YOUTUBE EN ESPAÑOL — TÉCNICA CORRECTA
