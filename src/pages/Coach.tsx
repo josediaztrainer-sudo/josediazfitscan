@@ -65,7 +65,7 @@ const Coach = () => {
       const l = logRes.data;
       if (p) {
         const ctx = {
-          weight: p.weight_kg, age: p.age, sex: p.sex,
+          name: p.full_name, weight: p.weight_kg, age: p.age, sex: p.sex,
           targetCalories: p.target_calories, targetProtein: p.target_protein,
           targetCarbs: p.target_carbs, targetFat: p.target_fat,
           activityLevel: p.activity_level,
@@ -73,7 +73,7 @@ const Coach = () => {
           protein: l?.total_protein || 0, carbs: l?.total_carbs || 0, fat: l?.total_fat || 0,
         };
         setUserContext(ctx);
-        setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined) }]);
+        setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined, (p as any).full_name ?? undefined) }]);
       }
     };
     fetchContext();
