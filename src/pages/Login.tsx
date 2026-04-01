@@ -34,7 +34,10 @@ const Login = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName, phone },
+          },
         });
         if (error) throw error;
         if (data.session) {
