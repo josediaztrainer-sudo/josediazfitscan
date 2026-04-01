@@ -762,7 +762,12 @@ const Coach = () => {
                       : "border border-border bg-card/90 backdrop-blur-sm text-foreground"
                   }`}
                 >
-                  {m.audioUrl ? (
+                  {m.imageUrl ? (
+                    <div className="flex flex-col gap-1">
+                      <img src={m.imageUrl} alt="Foto enviada" className="rounded-lg max-h-48 object-cover" />
+                      <span className="text-xs opacity-80">📸 Foto enviada</span>
+                    </div>
+                  ) : m.audioUrl ? (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <Mic className="h-4 w-4 shrink-0" />
