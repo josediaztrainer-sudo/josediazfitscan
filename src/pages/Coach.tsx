@@ -14,7 +14,7 @@ import HomeRoutineBuilder from "@/components/HomeRoutineBuilder";
 import SavedRoutines from "@/components/SavedRoutines";
 import ExerciseIllustration from "@/components/ExerciseIllustration";
 
-type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
+type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string; imageUrl?: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
