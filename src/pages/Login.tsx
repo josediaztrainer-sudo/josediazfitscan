@@ -41,6 +41,13 @@ const Login = () => {
         });
         if (error) throw error;
         if (data.session) {
+          // Save name and phone to profile
+          if (fullName || phone) {
+            await supabase.from("profiles").update({
+              full_name: fullName || null,
+              phone: phone || null,
+            } as any).eq("user_id", data.session.user.id);
+          }
           // Apply referral code if present
           if (refCode) {
             try {
