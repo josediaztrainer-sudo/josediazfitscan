@@ -848,7 +848,25 @@ const Coach = () => {
 
         {/* Input */}
         <div className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 mb-14 safe-bottom">
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handlePhotoSend}
+          />
           <div className="mx-auto flex max-w-lg gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={loading || isRecording}
+              className="shrink-0"
+              title="Enviar foto"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </Button>
             <Button
               variant="secondary"
               size="icon"
