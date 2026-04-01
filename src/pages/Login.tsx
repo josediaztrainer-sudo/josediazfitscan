@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
 import trainerPhoto from "@/assets/jose-trainer.jpeg";
 
@@ -19,6 +19,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
@@ -32,10 +34,20 @@ const Login = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName, phone },
+          },
         });
         if (error) throw error;
         if (data.session) {
+          // Save name and phone to profile
+          if (fullName || phone) {
+            await supabase.from("profiles").update({
+              full_name: fullName || null,
+              phone: phone || null,
+            } as any).eq("user_id", data.session.user.id);
+          }
           // Apply referral code if present
           if (refCode) {
             try {
@@ -227,6 +239,39 @@ const Login = () => {
         ) : (
           <>
             <form onSubmit={handleAuth} className="space-y-4">
+              {isSignup && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-foreground">Nombre completo</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Tu nombre completo"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="border-border bg-card/80 pl-10 text-foreground placeholder:text-muted-foreground backdrop-blur-sm focus:ring-primary"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-foreground">Teléfono</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+51 999 999 999"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="border-border bg-card/80 pl-10 text-foreground placeholder:text-muted-foreground backdrop-blur-sm focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">

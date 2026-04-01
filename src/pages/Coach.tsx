@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell, Save, BookOpen, Home } from "lucide-react";
+import { Send, Trash2, Loader2, Plus, MessageSquare, X, Mic, MicOff, Dumbbell, Save, BookOpen, Home, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -14,15 +14,16 @@ import HomeRoutineBuilder from "@/components/HomeRoutineBuilder";
 import SavedRoutines from "@/components/SavedRoutines";
 import ExerciseIllustration from "@/components/ExerciseIllustration";
 
-type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string };
+type Msg = { role: "user" | "assistant"; content: string; audioUrl?: string; imageUrl?: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 
-const getWelcome = (sex?: string) => {
+const getWelcome = (sex?: string, name?: string) => {
   const greeting = sex === "female" ? "campeona" : "campeón";
-  return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de tu día\n\n¡Vamos con todo! ⚡`;
+  const nameGreeting = name ? `, ${name}` : "";
+  return `¡Qué tal${nameGreeting}, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🏠 Rutinas en casa\n• 🫀 Rutina cardiovascular\n• 📸 Envíame fotos de cartas de restaurantes o tu físico\n• 🔥 Estrategias para quemar grasa\n\n¡Vamos con todo! ⚡`;
 };
 
 const Coach = () => {
@@ -45,6 +46,7 @@ const Coach = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +65,7 @@ const Coach = () => {
       const l = logRes.data;
       if (p) {
         const ctx = {
-          weight: p.weight_kg, age: p.age, sex: p.sex,
+          name: p.full_name, weight: p.weight_kg, age: p.age, sex: p.sex,
           targetCalories: p.target_calories, targetProtein: p.target_protein,
           targetCarbs: p.target_carbs, targetFat: p.target_fat,
           activityLevel: p.activity_level,
@@ -71,7 +73,7 @@ const Coach = () => {
           protein: l?.total_protein || 0, carbs: l?.total_carbs || 0, fat: l?.total_fat || 0,
         };
         setUserContext(ctx);
-        setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined) }]);
+        setMessages([{ role: "assistant", content: getWelcome(p.sex ?? undefined, (p as any).full_name ?? undefined) }]);
       }
     };
     fetchContext();
@@ -131,8 +133,86 @@ const Coach = () => {
 
   const startNewChat = () => {
     setActiveConvId(null);
-    setMessages([{ role: "assistant", content: getWelcome(userContext?.sex) }]);
+    setMessages([{ role: "assistant", content: getWelcome(userContext?.sex, userContext?.name) }]);
     setShowHistory(false);
+  };
+
+  // Photo upload handler
+  const handlePhotoSend = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || loading) return;
+    e.target.value = "";
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    
+    // Convert to base64
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+    const dataUrl = `data:${file.type};base64,${base64}`;
+
+    const userMsg: Msg = { role: "user", content: "📸 Foto enviada", imageUrl: previewUrl };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    setLoading(true);
+
+    let convId = activeConvId;
+    if (!convId) convId = await createConversation("📸 Consulta con foto");
+    if (convId) await saveMessage(convId, "user", "📸 Foto enviada para análisis");
+
+    let assistantSoFar = "";
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && prev.length === updatedMessages.length + 1) {
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+        }
+        return [...prev, { role: "assistant", content: assistantSoFar }];
+      });
+    };
+
+    try {
+      const chatMessages = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        {
+          role: "user" as const,
+          content: [
+            { type: "text", text: "Analiza esta imagen y dame tu recomendación como mi coach personal. Si es una carta de restaurante, dime la mejor opción según mis macros. Si es una foto de mi físico, dame recomendaciones de ejercicios para mejorar." },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ];
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: chatMessages, userContext }),
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => null);
+        toast.error(errData?.error || `Error ${resp.status}`);
+        setLoading(false);
+        return;
+      }
+
+      if (!resp.body) throw new Error("No stream body");
+      await processStream(resp.body, upsertAssistant);
+
+      if (convId && assistantSoFar) {
+        await saveMessage(convId, "assistant", assistantSoFar);
+        loadConversations();
+      }
+    } catch (err: any) {
+      console.error("Photo send error:", err);
+      toast.error("Error analizando la foto");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteConversation = async (convId: string, e: React.MouseEvent) => {
@@ -682,7 +762,12 @@ const Coach = () => {
                       : "border border-border bg-card/90 backdrop-blur-sm text-foreground"
                   }`}
                 >
-                  {m.audioUrl ? (
+                  {m.imageUrl ? (
+                    <div className="flex flex-col gap-1">
+                      <img src={m.imageUrl} alt="Foto enviada" className="rounded-lg max-h-48 object-cover" />
+                      <span className="text-xs opacity-80">📸 Foto enviada</span>
+                    </div>
+                  ) : m.audioUrl ? (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <Mic className="h-4 w-4 shrink-0" />
@@ -763,7 +848,25 @@ const Coach = () => {
 
         {/* Input */}
         <div className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm p-3 mb-14 safe-bottom">
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handlePhotoSend}
+          />
           <div className="mx-auto flex max-w-lg gap-2">
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => photoInputRef.current?.click()}
+              disabled={loading || isRecording}
+              className="shrink-0"
+              title="Enviar foto"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </Button>
             <Button
               variant="secondary"
               size="icon"
