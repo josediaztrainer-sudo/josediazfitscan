@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
 import trainerPhoto from "@/assets/jose-trainer.jpeg";
 
