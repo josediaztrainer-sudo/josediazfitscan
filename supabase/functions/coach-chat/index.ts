@@ -398,6 +398,7 @@ serve(async (req) => {
     let contextMessage = "";
     if (userContext) {
       const parts = [];
+      if (userContext.name) parts.push(`Nombre: ${userContext.name}`);
       if (userContext.weight) parts.push(`Peso: ${userContext.weight}kg`);
       if (userContext.age) parts.push(`Edad: ${userContext.age} años`);
       if (userContext.sex) parts.push(`Sexo: ${userContext.sex === 'male' ? 'Masculino' : 'Femenino'}`);
