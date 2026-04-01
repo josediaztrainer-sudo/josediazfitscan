@@ -200,11 +200,13 @@ export type Database = {
           activity_level: string | null
           age: number | null
           created_at: string
+          full_name: string | null
           goal: string | null
           height_cm: number | null
           id: string
           is_premium: boolean
           onboarding_completed: boolean
+          phone: string | null
           referral_code: string | null
           sex: string | null
           target_calories: number | null
@@ -220,11 +222,13 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           created_at?: string
+          full_name?: string | null
           goal?: string | null
           height_cm?: number | null
           id?: string
           is_premium?: boolean
           onboarding_completed?: boolean
+          phone?: string | null
           referral_code?: string | null
           sex?: string | null
           target_calories?: number | null
@@ -240,11 +244,13 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           created_at?: string
+          full_name?: string | null
           goal?: string | null
           height_cm?: number | null
           id?: string
           is_premium?: boolean
           onboarding_completed?: boolean
+          phone?: string | null
           referral_code?: string | null
           sex?: string | null
           target_calories?: number | null
