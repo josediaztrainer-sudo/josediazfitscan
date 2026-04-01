@@ -133,8 +133,86 @@ const Coach = () => {
 
   const startNewChat = () => {
     setActiveConvId(null);
-    setMessages([{ role: "assistant", content: getWelcome(userContext?.sex) }]);
+    setMessages([{ role: "assistant", content: getWelcome(userContext?.sex, userContext?.name) }]);
     setShowHistory(false);
+  };
+
+  // Photo upload handler
+  const handlePhotoSend = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || loading) return;
+    e.target.value = "";
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    
+    // Convert to base64
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = btoa(new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+    const dataUrl = `data:${file.type};base64,${base64}`;
+
+    const userMsg: Msg = { role: "user", content: "📸 Foto enviada", imageUrl: previewUrl };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    setLoading(true);
+
+    let convId = activeConvId;
+    if (!convId) convId = await createConversation("📸 Consulta con foto");
+    if (convId) await saveMessage(convId, "user", "📸 Foto enviada para análisis");
+
+    let assistantSoFar = "";
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && prev.length === updatedMessages.length + 1) {
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
+        }
+        return [...prev, { role: "assistant", content: assistantSoFar }];
+      });
+    };
+
+    try {
+      const chatMessages = [
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+        {
+          role: "user" as const,
+          content: [
+            { type: "text", text: "Analiza esta imagen y dame tu recomendación como mi coach personal. Si es una carta de restaurante, dime la mejor opción según mis macros. Si es una foto de mi físico, dame recomendaciones de ejercicios para mejorar." },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ];
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: chatMessages, userContext }),
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => null);
+        toast.error(errData?.error || `Error ${resp.status}`);
+        setLoading(false);
+        return;
+      }
+
+      if (!resp.body) throw new Error("No stream body");
+      await processStream(resp.body, upsertAssistant);
+
+      if (convId && assistantSoFar) {
+        await saveMessage(convId, "assistant", assistantSoFar);
+        loadConversations();
+      }
+    } catch (err: any) {
+      console.error("Photo send error:", err);
+      toast.error("Error analizando la foto");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const deleteConversation = async (convId: string, e: React.MouseEvent) => {
