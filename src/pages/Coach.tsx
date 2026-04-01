@@ -20,9 +20,10 @@ type Conversation = { id: string; title: string; created_at: string; updated_at:
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
 const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`;
 
-const getWelcome = (sex?: string) => {
+const getWelcome = (sex?: string, name?: string) => {
   const greeting = sex === "female" ? "campeona" : "campeón";
-  return `¡Qué tal, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🔥 Estrategias para quemar grasa\n• 📊 Análisis de tu día\n\n¡Vamos con todo! ⚡`;
+  const nameGreeting = name ? `, ${name}` : "";
+  return `¡Qué tal${nameGreeting}, ${greeting}! 🧡\n\nSoy **Jose Diaz**, tu coach personal. Pregúntame lo que necesites:\n• 🥩 Nutrición y macros\n• 🏋️ Rutinas de gym\n• 🏠 Rutinas en casa\n• 🫀 Rutina cardiovascular\n• 📸 Envíame fotos de cartas de restaurantes o tu físico\n• 🔥 Estrategias para quemar grasa\n\n¡Vamos con todo! ⚡`;
 };
 
 const Coach = () => {
