@@ -260,15 +260,64 @@ const Privacy = () => {
             </p>
             <div className="rounded-lg border border-border bg-card p-4 space-y-1">
               <p className="text-sm text-foreground font-medium">JOSE DIAZ FIT SCAN</p>
-              <p className="text-sm text-muted-foreground">📧 soporte@josediazfitscan.com</p>
+              <p className="text-sm text-muted-foreground">📧 josediaztrainer@gmail.com</p>
               <p className="text-sm text-muted-foreground">🌐 josediazfitscan.lovable.app</p>
             </div>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">14. Legislación Aplicable</h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Esta Política de Privacidad y los Términos y Condiciones se rigen por las leyes de la República del Perú, incluyendo pero no limitándose a:
+            </p>
+            <ul className="ml-4 space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Ley N° 29733</strong> — Ley de Protección de Datos Personales y su Reglamento (D.S. N° 003-2013-JUS).</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Ley N° 29571</strong> — Código de Protección y Defensa del Consumidor.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Decreto Legislativo N° 1390</strong> — Modificatoria de la Ley de Protección de Datos Personales.</span>
+              </li>
+            </ul>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Cualquier controversia será sometida a los tribunales competentes de la ciudad de Lima, Perú.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">15. Exención de Responsabilidad</h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              JOSE DIAZ FIT SCAN proporciona información y asesoramiento fitness y nutricional con <strong className="text-foreground">carácter exclusivamente informativo y educativo</strong>. La plataforma <strong className="text-foreground">NO constituye un servicio médico, diagnóstico ni tratamiento</strong>. El usuario reconoce y acepta que:
+            </p>
+            <ul className="ml-4 space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>Debe consultar a un profesional de la salud antes de iniciar cualquier programa de ejercicio o régimen alimenticio.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>Los resultados pueden variar según cada individuo y no están garantizados.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>JOSE DIAZ FIT SCAN, sus creadores, operadores y colaboradores quedan <strong className="text-foreground">exentos de toda responsabilidad</strong> por lesiones, daños físicos, problemas de salud o cualquier perjuicio directo o indirecto derivado del uso de la plataforma.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>El uso de la plataforma es bajo la <strong className="text-foreground">total y exclusiva responsabilidad del usuario</strong>.</span>
+              </li>
+            </ul>
           </section>
 
           <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center">
             <p className="text-xs text-primary">
               <Shield className="mr-1 inline h-3 w-3" />
-              Al usar JOSE DIAZ FIT SCAN, usted confirma haber leído, entendido y aceptado esta Política de Privacidad y los Términos y Condiciones de Uso.
+              Al usar JOSE DIAZ FIT SCAN, usted confirma haber leído, entendido y aceptado esta Política de Privacidad, los Términos y Condiciones de Uso, y la Exención de Responsabilidad.
             </p>
           </div>
         </motion.div>
