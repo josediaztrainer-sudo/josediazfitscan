@@ -373,6 +373,12 @@ const Login = () => {
                 {isSignup ? "Inicia sesión" : "Regístrate"}
               </button>
             </p>
+
+            <p className="mt-3 text-center">
+              <Link to="/privacy" className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary">
+                Política de Privacidad y Términos
+              </Link>
+            </p>
           </>
         )}
       </motion.div>
