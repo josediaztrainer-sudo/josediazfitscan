@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
@@ -21,6 +22,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
@@ -30,6 +32,11 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (isSignup && !acceptedTerms) {
+        toast.error("Debes aceptar los Términos y Condiciones para registrarte");
+        setLoading(false);
+        return;
+      }
       if (isSignup) {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -94,6 +101,10 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    if (isSignup && !acceptedTerms) {
+      toast.error("Debes aceptar los Términos y Condiciones para registrarte");
+      return;
+    }
     setGoogleLoading(true);
     try {
       const { error } = await lovable.auth.signInWithOAuth("google", {
@@ -185,6 +196,24 @@ const Login = () => {
             {forgotMode ? "Recupera tu contraseña" : isSignup ? "Crea tu cuenta elite" : "Inicia sesión"}
           </p>
         </div>
+
+        {isSignup && (
+          <div className="mb-4 flex items-start gap-3">
+            <Checkbox
+              id="terms-google"
+              checked={acceptedTerms}
+              onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="terms-google" className="text-xs leading-relaxed text-muted-foreground cursor-pointer">
+              He leído y acepto la{" "}
+              <Link to="/privacy" className="text-primary underline underline-offset-2 hover:text-primary/80" target="_blank">
+                Política de Privacidad y Términos y Condiciones
+              </Link>{" "}
+              de JOSE DIAZ FIT SCAN.
+            </label>
+          </div>
+        )}
 
         {/* Google Sign In */}
         <Button
@@ -315,7 +344,8 @@ const Login = () => {
                 </div>
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full font-display text-lg tracking-wider box-glow">
+
+              <Button type="submit" disabled={loading || (isSignup && !acceptedTerms)} className="w-full font-display text-lg tracking-wider box-glow">
                 {loading ? "..." : isSignup ? "CREAR CUENTA" : "ENTRAR"}
               </Button>
             </form>
@@ -325,6 +355,12 @@ const Login = () => {
               <button onClick={() => setIsSignup(!isSignup)} className="text-primary underline-offset-4 hover:underline">
                 {isSignup ? "Inicia sesión" : "Regístrate"}
               </button>
+            </p>
+
+            <p className="mt-3 text-center">
+              <Link to="/privacy" className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary">
+                Política de Privacidad y Términos
+              </Link>
             </p>
           </>
         )}
