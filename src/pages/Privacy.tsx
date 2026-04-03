@@ -1,10 +1,26 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, Shield } from "lucide-react";
+import { ChevronLeft, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 const Privacy = () => {
   const navigate = useNavigate();
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const handleConfirm = () => {
+    if (!acceptedTerms || !isAdult) {
+      toast.error("Debes aceptar ambas condiciones para continuar");
+      return;
+    }
+    setConfirmed(true);
+    toast.success("✅ Has aceptado los Términos y Condiciones");
+    setTimeout(() => navigate(-1), 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 pb-12 pt-6">
@@ -185,7 +201,7 @@ const Privacy = () => {
               </li>
             </ul>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Para ejercer cualquiera de estos derechos, puede contactarnos a través de la aplicación o enviando un correo a <span className="text-primary">soporte@josediazfitscan.com</span>.
+              Para ejercer cualquiera de estos derechos, puede contactarnos a través de la aplicación o enviando un correo a <span className="text-primary">josediaztrainer@gmail.com</span>.
             </p>
           </section>
 
@@ -199,7 +215,7 @@ const Privacy = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-foreground">9. Menores de Edad</h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              JOSE DIAZ FIT SCAN está diseñada para personas mayores de 14 años. Los menores de 18 años deben contar con el consentimiento de un padre o tutor legal para utilizar la plataforma. No recopilamos intencionalmente datos de menores de 14 años.
+              JOSE DIAZ FIT SCAN está diseñada exclusivamente para personas mayores de 18 años. Al utilizar esta plataforma, usted declara y garantiza que tiene al menos 18 años de edad. No recopilamos intencionalmente datos de menores de 18 años. Si detectamos que un menor ha proporcionado datos personales, procederemos a eliminar dicha información de inmediato.
             </p>
           </section>
 
@@ -257,17 +273,112 @@ const Privacy = () => {
             </p>
             <div className="rounded-lg border border-border bg-card p-4 space-y-1">
               <p className="text-sm text-foreground font-medium">JOSE DIAZ FIT SCAN</p>
-              <p className="text-sm text-muted-foreground">📧 soporte@josediazfitscan.com</p>
+              <p className="text-sm text-muted-foreground">📧 josediaztrainer@gmail.com</p>
               <p className="text-sm text-muted-foreground">🌐 josediazfitscan.lovable.app</p>
             </div>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">14. Legislación Aplicable</h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Esta Política de Privacidad y los Términos y Condiciones se rigen por las leyes de la República del Perú, incluyendo pero no limitándose a:
+            </p>
+            <ul className="ml-4 space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Ley N° 29733</strong> — Ley de Protección de Datos Personales y su Reglamento (D.S. N° 003-2013-JUS).</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Ley N° 29571</strong> — Código de Protección y Defensa del Consumidor.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span><strong className="text-foreground">Decreto Legislativo N° 1390</strong> — Modificatoria de la Ley de Protección de Datos Personales.</span>
+              </li>
+            </ul>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Cualquier controversia será sometida a los tribunales competentes de la ciudad de Lima, Perú.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-foreground">15. Exención de Responsabilidad</h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              JOSE DIAZ FIT SCAN proporciona información y asesoramiento fitness y nutricional con <strong className="text-foreground">carácter exclusivamente informativo y educativo</strong>. La plataforma <strong className="text-foreground">NO constituye un servicio médico, diagnóstico ni tratamiento</strong>. El usuario reconoce y acepta que:
+            </p>
+            <ul className="ml-4 space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>Debe consultar a un profesional de la salud antes de iniciar cualquier programa de ejercicio o régimen alimenticio.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>Los resultados pueden variar según cada individuo y no están garantizados.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>JOSE DIAZ FIT SCAN, sus creadores, operadores y colaboradores quedan <strong className="text-foreground">exentos de toda responsabilidad</strong> por lesiones, daños físicos, problemas de salud o cualquier perjuicio directo o indirecto derivado del uso de la plataforma.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary font-bold">•</span>
+                <span>El uso de la plataforma es bajo la <strong className="text-foreground">total y exclusiva responsabilidad del usuario</strong>.</span>
+              </li>
+            </ul>
           </section>
 
           <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-center">
             <p className="text-xs text-primary">
               <Shield className="mr-1 inline h-3 w-3" />
-              Al usar JOSE DIAZ FIT SCAN, usted confirma haber leído, entendido y aceptado esta Política de Privacidad y los Términos y Condiciones de Uso.
+              Al usar JOSE DIAZ FIT SCAN, usted confirma haber leído, entendido y aceptado esta Política de Privacidad, los Términos y Condiciones de Uso, y la Exención de Responsabilidad.
             </p>
           </div>
+
+          {/* Confirmation section */}
+          {!confirmed ? (
+            <div className="space-y-4 rounded-lg border border-border bg-card p-5">
+              <h3 className="text-center font-display text-lg tracking-wide text-foreground">CONFIRMACIÓN</h3>
+              
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-terms" className="text-sm leading-relaxed text-muted-foreground cursor-pointer">
+                  He leído, entendido y <strong className="text-foreground">acepto la Política de Privacidad, los Términos y Condiciones de Uso</strong> y la Exención de Responsabilidad de JOSE DIAZ FIT SCAN.
+                </label>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="accept-age"
+                  checked={isAdult}
+                  onCheckedChange={(checked) => setIsAdult(checked === true)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-age" className="text-sm leading-relaxed text-muted-foreground cursor-pointer">
+                  Declaro que <strong className="text-foreground">soy mayor de 18 años</strong> y tengo capacidad legal para aceptar estos términos.
+                </label>
+              </div>
+
+              <Button
+                onClick={handleConfirm}
+                disabled={!acceptedTerms || !isAdult}
+                className="w-full font-display text-lg tracking-wider box-glow"
+              >
+                <Shield className="mr-2 h-5 w-5" />
+                CONFIRMO QUE ESTOY DE ACUERDO
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-5 text-center space-y-2">
+              <CheckCircle className="mx-auto h-8 w-8 text-green-500" />
+              <p className="font-display text-lg tracking-wide text-green-500">¡ACEPTADO!</p>
+              <p className="text-xs text-muted-foreground">Has aceptado los Términos y Condiciones. Redirigiendo...</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
