@@ -359,7 +359,7 @@ const Login = () => {
               </div>
 
 
-              <Button type="submit" disabled={loading || (isSignup && !acceptedTerms)} className="w-full font-display text-lg tracking-wider box-glow">
+              <Button type="submit" disabled={loading || (isSignup && (!acceptedTerms || !isAdult))} className="w-full font-display text-lg tracking-wider box-glow">
                 {loading ? "..." : isSignup ? "CREAR CUENTA" : "ENTRAR"}
               </Button>
             </form>
