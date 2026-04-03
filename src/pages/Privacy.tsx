@@ -202,7 +202,7 @@ const Privacy = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-foreground">9. Menores de Edad</h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              JOSE DIAZ FIT SCAN está diseñada para personas mayores de 14 años. Los menores de 18 años deben contar con el consentimiento de un padre o tutor legal para utilizar la plataforma. No recopilamos intencionalmente datos de menores de 14 años.
+              JOSE DIAZ FIT SCAN está diseñada exclusivamente para personas mayores de 18 años. Al utilizar esta plataforma, usted declara y garantiza que tiene al menos 18 años de edad. No recopilamos intencionalmente datos de menores de 18 años. Si detectamos que un menor ha proporcionado datos personales, procederemos a eliminar dicha información de inmediato.
             </p>
           </section>
 
