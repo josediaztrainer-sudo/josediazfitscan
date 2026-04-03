@@ -33,8 +33,8 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (isSignup && !acceptedTerms) {
-        toast.error("Debes aceptar los Términos y Condiciones para registrarte");
+      if (isSignup && (!acceptedTerms || !isAdult)) {
+        toast.error("Debes aceptar los Términos y confirmar que eres mayor de 18 años");
         setLoading(false);
         return;
       }
