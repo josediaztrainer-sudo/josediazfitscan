@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, Shield } from "lucide-react";
+import { ChevronLeft, Shield, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 const Privacy = () => {
   const navigate = useNavigate();
