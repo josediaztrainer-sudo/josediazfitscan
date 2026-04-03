@@ -188,7 +188,7 @@ const Privacy = () => {
               </li>
             </ul>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Para ejercer cualquiera de estos derechos, puede contactarnos a través de la aplicación o enviando un correo a <span className="text-primary">soporte@josediazfitscan.com</span>.
+              Para ejercer cualquiera de estos derechos, puede contactarnos a través de la aplicación o enviando un correo a <span className="text-primary">josediaztrainer@gmail.com</span>.
             </p>
           </section>
 
