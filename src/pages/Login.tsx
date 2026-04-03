@@ -102,8 +102,8 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (isSignup && !acceptedTerms) {
-      toast.error("Debes aceptar los Términos y Condiciones para registrarte");
+    if (isSignup && (!acceptedTerms || !isAdult)) {
+      toast.error("Debes aceptar los Términos y confirmar que eres mayor de 18 años");
       return;
     }
     setGoogleLoading(true);
