@@ -32,6 +32,11 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      if (isSignup && !acceptedTerms) {
+        toast.error("Debes aceptar los Términos y Condiciones para registrarte");
+        setLoading(false);
+        return;
+      }
       if (isSignup) {
         const { data, error } = await supabase.auth.signUp({
           email,
