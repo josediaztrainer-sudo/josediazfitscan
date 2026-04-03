@@ -344,23 +344,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {isSignup && (
-                <div className="flex items-start gap-3">
-                  <Checkbox
-                    id="terms"
-                    checked={acceptedTerms}
-                    onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                    className="mt-0.5"
-                  />
-                  <label htmlFor="terms" className="text-xs leading-relaxed text-muted-foreground cursor-pointer">
-                    He leído y acepto la{" "}
-                    <Link to="/privacy" className="text-primary underline underline-offset-2 hover:text-primary/80" target="_blank">
-                      Política de Privacidad y Términos y Condiciones
-                    </Link>{" "}
-                    de JOSE DIAZ FIT SCAN.
-                  </label>
-                </div>
-              )}
 
               <Button type="submit" disabled={loading || (isSignup && !acceptedTerms)} className="w-full font-display text-lg tracking-wider box-glow">
                 {loading ? "..." : isSignup ? "CREAR CUENTA" : "ENTRAR"}
