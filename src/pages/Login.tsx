@@ -101,8 +101,8 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!acceptedTerms) {
-      toast.error("Debes aceptar los Términos y Condiciones para continuar");
+    if (isSignup && !acceptedTerms) {
+      toast.error("Debes aceptar los Términos y Condiciones para registrarte");
       return;
     }
     setGoogleLoading(true);
