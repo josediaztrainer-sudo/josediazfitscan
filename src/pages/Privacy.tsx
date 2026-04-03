@@ -333,6 +333,52 @@ const Privacy = () => {
               Al usar JOSE DIAZ FIT SCAN, usted confirma haber leído, entendido y aceptado esta Política de Privacidad, los Términos y Condiciones de Uso, y la Exención de Responsabilidad.
             </p>
           </div>
+
+          {/* Confirmation section */}
+          {!confirmed ? (
+            <div className="space-y-4 rounded-lg border border-border bg-card p-5">
+              <h3 className="text-center font-display text-lg tracking-wide text-foreground">CONFIRMACIÓN</h3>
+              
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-terms" className="text-sm leading-relaxed text-muted-foreground cursor-pointer">
+                  He leído, entendido y <strong className="text-foreground">acepto la Política de Privacidad, los Términos y Condiciones de Uso</strong> y la Exención de Responsabilidad de JOSE DIAZ FIT SCAN.
+                </label>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="accept-age"
+                  checked={isAdult}
+                  onCheckedChange={(checked) => setIsAdult(checked === true)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="accept-age" className="text-sm leading-relaxed text-muted-foreground cursor-pointer">
+                  Declaro que <strong className="text-foreground">soy mayor de 18 años</strong> y tengo capacidad legal para aceptar estos términos.
+                </label>
+              </div>
+
+              <Button
+                onClick={handleConfirm}
+                disabled={!acceptedTerms || !isAdult}
+                className="w-full font-display text-lg tracking-wider box-glow"
+              >
+                <Shield className="mr-2 h-5 w-5" />
+                CONFIRMO QUE ESTOY DE ACUERDO
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-5 text-center space-y-2">
+              <CheckCircle className="mx-auto h-8 w-8 text-green-500" />
+              <p className="font-display text-lg tracking-wide text-green-500">¡ACEPTADO!</p>
+              <p className="text-xs text-muted-foreground">Has aceptado los Términos y Condiciones. Redirigiendo...</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
