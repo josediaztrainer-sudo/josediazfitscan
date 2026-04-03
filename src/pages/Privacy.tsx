@@ -8,6 +8,19 @@ import { toast } from "sonner";
 
 const Privacy = () => {
   const navigate = useNavigate();
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const handleConfirm = () => {
+    if (!acceptedTerms || !isAdult) {
+      toast.error("Debes aceptar ambas condiciones para continuar");
+      return;
+    }
+    setConfirmed(true);
+    toast.success("✅ Has aceptado los Términos y Condiciones");
+    setTimeout(() => navigate(-1), 1500);
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 pb-12 pt-6">
