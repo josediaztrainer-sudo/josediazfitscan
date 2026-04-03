@@ -44,6 +44,7 @@ const AppLayout = () => {
         <Route path="/paywall" element={<Paywall />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/install" element={<Install />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {showNav && <BottomNav />}
