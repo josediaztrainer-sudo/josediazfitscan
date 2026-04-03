@@ -199,20 +199,33 @@ const Login = () => {
         </div>
 
         {isSignup && (
-          <div className="mb-4 flex items-start gap-3">
-            <Checkbox
-              id="terms-google"
-              checked={acceptedTerms}
-              onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-              className="mt-0.5"
-            />
-            <label htmlFor="terms-google" className="text-xs leading-relaxed text-muted-foreground cursor-pointer">
-              He leído y acepto la{" "}
-              <Link to="/privacy" className="text-primary underline underline-offset-2 hover:text-primary/80" target="_blank">
-                Política de Privacidad y Términos y Condiciones
-              </Link>{" "}
-              de JOSE DIAZ FIT SCAN.
-            </label>
+          <div className="mb-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="terms-google"
+                checked={acceptedTerms}
+                onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="terms-google" className="text-xs leading-relaxed text-muted-foreground cursor-pointer">
+                He leído y acepto la{" "}
+                <Link to="/privacy" className="text-primary underline underline-offset-2 hover:text-primary/80" target="_blank">
+                  Política de Privacidad y Términos y Condiciones
+                </Link>{" "}
+                de JOSE DIAZ FIT SCAN.
+              </label>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="age-confirm"
+                checked={isAdult}
+                onCheckedChange={(checked) => setIsAdult(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="age-confirm" className="text-xs leading-relaxed text-muted-foreground cursor-pointer">
+                Confirmo que <strong className="text-foreground">soy mayor de 18 años</strong>.
+              </label>
+            </div>
           </div>
         )}
 
