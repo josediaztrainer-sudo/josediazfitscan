@@ -16,6 +16,7 @@ import Admin from "./pages/Admin";
 import Progress from "./pages/Progress";
 import Install from "./pages/Install";
 import ResetPassword from "./pages/ResetPassword";
+import Privacy from "./pages/Privacy";
 import BottomNav from "./components/BottomNav";
 import ProtectedFeature from "./components/ProtectedFeature";
 import TrialExpirationNotifier from "./components/TrialExpirationNotifier";
