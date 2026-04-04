@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 interface PremiumUser {
   user_id: string;
   email: string;
+  full_name: string;
+  phone: string;
   is_premium: boolean;
   trial_ends_at: string | null;
   status: string;
