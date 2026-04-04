@@ -52,7 +52,7 @@ serve(async (req) => {
     // Get all profiles
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, is_premium, trial_ends_at, created_at")
+      .select("user_id, is_premium, trial_ends_at, created_at, full_name, phone")
       .order("created_at", { ascending: false });
 
     if (profilesError) throw profilesError;
@@ -83,6 +83,8 @@ serve(async (req) => {
       return {
         user_id: p.user_id,
         email: emailMap.get(p.user_id) || "—",
+        full_name: p.full_name || "—",
+        phone: p.phone || "—",
         is_premium: p.is_premium,
         trial_ends_at: p.trial_ends_at,
         status,

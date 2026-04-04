@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle, Trash2, History } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle, Trash2, History, Phone, Mail, User, Search, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 interface PremiumUser {
   user_id: string;
   email: string;
+  full_name: string;
+  phone: string;
   is_premium: boolean;
   trial_ends_at: string | null;
   status: string;
@@ -63,7 +65,8 @@ const Admin = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
-  const [activeTab, setActiveTab] = useState<"users" | "history">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "prospects" | "history">("users");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -249,12 +252,16 @@ const Admin = () => {
         {/* Tab Navigation */}
         <div className="flex rounded-lg border border-border bg-card p-1">
           <button onClick={() => setActiveTab("users")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${activeTab === "users" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-            <Users className="h-4 w-4" /> Usuarios
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "users" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <Users className="h-3.5 w-3.5" /> Usuarios
+          </button>
+          <button onClick={() => setActiveTab("prospects")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "prospects" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <Phone className="h-3.5 w-3.5" /> Prospectos
           </button>
           <button onClick={() => setActiveTab("history")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${activeTab === "history" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-            <History className="h-4 w-4" /> Historial
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "history" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <History className="h-3.5 w-3.5" /> Historial
           </button>
         </div>
 
@@ -303,9 +310,20 @@ const Admin = () => {
                     <div key={u.user_id} className="rounded-lg border border-border bg-background p-3">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {u.status === "premium" || u.status === "trial" ? `Vence: ${expiresAt}` : u.status === "expired" ? `Venció: ${expiresAt}` : `Registrado`}
+                          <p className="truncate text-sm font-semibold text-foreground flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-primary shrink-0" />
+                            {u.full_name !== "—" ? u.full_name : u.email}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <Mail className="h-3 w-3 shrink-0" /> {u.email}
+                          </p>
+                          {u.phone !== "—" && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <Phone className="h-3 w-3 shrink-0" /> {u.phone}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                            {u.status === "premium" || u.status === "trial" ? `Vence: ${expiresAt}` : u.status === "expired" ? `Venció: ${expiresAt}` : `Registrado: ${new Date(u.created_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}`}
                           </p>
                         </div>
                         <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${cfg.className}`}>{cfg.label}</Badge>
@@ -355,6 +373,93 @@ const Admin = () => {
                 })}
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Prospects List */}
+        {activeTab === "prospects" && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-primary">
+                <Phone className="h-5 w-5" />
+                <h2 className="font-display text-lg tracking-wider">PROSPECTOS</h2>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                  {users.filter(u => u.status === "free" || u.status === "expired").length}
+                </span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={fetchUsers} disabled={loadingUsers} className="h-8 w-8">
+                <RefreshCw className={`h-4 w-4 ${loadingUsers ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre, email o teléfono..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 border-border bg-background text-foreground text-sm"
+              />
+            </div>
+
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-bold text-primary">Lista de prospección:</span> Usuarios sin suscripción activa, ideales para contactar y ofrecer planes premium.
+              </p>
+            </div>
+
+            {(() => {
+              const prospects = users
+                .filter(u => u.status === "free" || u.status === "expired")
+                .filter(u => {
+                  if (!searchTerm.trim()) return true;
+                  const term = searchTerm.toLowerCase();
+                  return u.full_name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term) || u.phone.toLowerCase().includes(term);
+                });
+
+              return prospects.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-4">No hay prospectos disponibles</p>
+              ) : (
+                <div className="space-y-2">
+                  {prospects.map((u, i) => (
+                    <div key={u.user_id} className="rounded-lg border border-border bg-background p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-display text-sm">
+                            {u.full_name !== "—" ? u.full_name.charAt(0).toUpperCase() : "#"}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-sm text-foreground truncate">
+                              {u.full_name !== "—" ? u.full_name : "Sin nombre"}
+                            </p>
+                            <div className="mt-1 space-y-0.5">
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Mail className="h-3 w-3 shrink-0 text-primary/60" />
+                                <span className="truncate">{u.email}</span>
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Phone className="h-3 w-3 shrink-0 text-primary/60" />
+                                <span>{u.phone !== "—" ? u.phone : "No registrado"}</span>
+                              </p>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground/60 mt-1">
+                              Registro: {new Date(u.created_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
+                              {u.status === "expired" && u.trial_ends_at && ` · Expiró: ${new Date(u.trial_ends_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}`}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${STATUS_CONFIG[u.status]?.className || STATUS_CONFIG.free.className}`}>
+                          {STATUS_CONFIG[u.status]?.label || "Free"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="rounded-lg bg-muted/50 p-3 text-center">
+                    <p className="text-xs text-muted-foreground">{prospects.length} prospecto{prospects.length !== 1 ? "s" : ""} encontrado{prospects.length !== 1 ? "s" : ""}</p>
+                  </div>
+                </div>
+              );
+            })()}
           </motion.div>
         )}
 
