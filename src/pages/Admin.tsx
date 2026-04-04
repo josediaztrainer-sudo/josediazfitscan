@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle, Trash2, History } from "lucide-react";
+import { Shield, Crown, CheckCircle, Loader2, Lock, Users, RefreshCw, XCircle, AlertTriangle, Trash2, History, Phone, Mail, User, Search, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
