@@ -310,9 +310,20 @@ const Admin = () => {
                     <div key={u.user_id} className="rounded-lg border border-border bg-background p-3">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-foreground">{u.email}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {u.status === "premium" || u.status === "trial" ? `Vence: ${expiresAt}` : u.status === "expired" ? `Venció: ${expiresAt}` : `Registrado`}
+                          <p className="truncate text-sm font-semibold text-foreground flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-primary shrink-0" />
+                            {u.full_name !== "—" ? u.full_name : u.email}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <Mail className="h-3 w-3 shrink-0" /> {u.email}
+                          </p>
+                          {u.phone !== "—" && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <Phone className="h-3 w-3 shrink-0" /> {u.phone}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                            {u.status === "premium" || u.status === "trial" ? `Vence: ${expiresAt}` : u.status === "expired" ? `Venció: ${expiresAt}` : `Registrado: ${new Date(u.created_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}`}
                           </p>
                         </div>
                         <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${cfg.className}`}>{cfg.label}</Badge>
