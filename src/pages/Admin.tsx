@@ -376,6 +376,93 @@ const Admin = () => {
           </motion.div>
         )}
 
+        {/* Prospects List */}
+        {activeTab === "prospects" && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-primary">
+                <Phone className="h-5 w-5" />
+                <h2 className="font-display text-lg tracking-wider">PROSPECTOS</h2>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                  {users.filter(u => u.status === "free" || u.status === "expired").length}
+                </span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={fetchUsers} disabled={loadingUsers} className="h-8 w-8">
+                <RefreshCw className={`h-4 w-4 ${loadingUsers ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre, email o teléfono..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 border-border bg-background text-foreground text-sm"
+              />
+            </div>
+
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-bold text-primary">Lista de prospección:</span> Usuarios sin suscripción activa, ideales para contactar y ofrecer planes premium.
+              </p>
+            </div>
+
+            {(() => {
+              const prospects = users
+                .filter(u => u.status === "free" || u.status === "expired")
+                .filter(u => {
+                  if (!searchTerm.trim()) return true;
+                  const term = searchTerm.toLowerCase();
+                  return u.full_name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term) || u.phone.toLowerCase().includes(term);
+                });
+
+              return prospects.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground py-4">No hay prospectos disponibles</p>
+              ) : (
+                <div className="space-y-2">
+                  {prospects.map((u, i) => (
+                    <div key={u.user_id} className="rounded-lg border border-border bg-background p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-display text-sm">
+                            {u.full_name !== "—" ? u.full_name.charAt(0).toUpperCase() : "#"}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-sm text-foreground truncate">
+                              {u.full_name !== "—" ? u.full_name : "Sin nombre"}
+                            </p>
+                            <div className="mt-1 space-y-0.5">
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Mail className="h-3 w-3 shrink-0 text-primary/60" />
+                                <span className="truncate">{u.email}</span>
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Phone className="h-3 w-3 shrink-0 text-primary/60" />
+                                <span>{u.phone !== "—" ? u.phone : "No registrado"}</span>
+                              </p>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground/60 mt-1">
+                              Registro: {new Date(u.created_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })}
+                              {u.status === "expired" && u.trial_ends_at && ` · Expiró: ${new Date(u.trial_ends_at).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}`}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={`ml-2 shrink-0 text-[10px] ${STATUS_CONFIG[u.status]?.className || STATUS_CONFIG.free.className}`}>
+                          {STATUS_CONFIG[u.status]?.label || "Free"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="rounded-lg bg-muted/50 p-3 text-center">
+                    <p className="text-xs text-muted-foreground">{prospects.length} prospecto{prospects.length !== 1 ? "s" : ""} encontrado{prospects.length !== 1 ? "s" : ""}</p>
+                  </div>
+                </div>
+              );
+            })()}
+          </motion.div>
+        )}
+
         {/* Transaction History */}
         {activeTab === "history" && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-border bg-card p-5 space-y-4">
