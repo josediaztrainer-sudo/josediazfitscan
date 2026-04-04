@@ -252,12 +252,16 @@ const Admin = () => {
         {/* Tab Navigation */}
         <div className="flex rounded-lg border border-border bg-card p-1">
           <button onClick={() => setActiveTab("users")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${activeTab === "users" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-            <Users className="h-4 w-4" /> Usuarios
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "users" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <Users className="h-3.5 w-3.5" /> Usuarios
+          </button>
+          <button onClick={() => setActiveTab("prospects")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "prospects" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <Phone className="h-3.5 w-3.5" /> Prospectos
           </button>
           <button onClick={() => setActiveTab("history")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${activeTab === "history" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-            <History className="h-4 w-4" /> Historial
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2.5 text-xs font-medium transition-all ${activeTab === "history" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+            <History className="h-3.5 w-3.5" /> Historial
           </button>
         </div>
 
