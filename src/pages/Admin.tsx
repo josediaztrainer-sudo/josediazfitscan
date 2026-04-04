@@ -65,7 +65,8 @@ const Admin = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
-  const [activeTab, setActiveTab] = useState<"users" | "history">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "prospects" | "history">("users");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const checkAdminRole = async () => {
