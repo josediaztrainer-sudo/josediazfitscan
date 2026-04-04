@@ -83,6 +83,8 @@ serve(async (req) => {
       return {
         user_id: p.user_id,
         email: emailMap.get(p.user_id) || "—",
+        full_name: p.full_name || "—",
+        phone: p.phone || "—",
         is_premium: p.is_premium,
         trial_ends_at: p.trial_ends_at,
         status,
