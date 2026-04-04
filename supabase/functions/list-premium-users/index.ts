@@ -52,7 +52,7 @@ serve(async (req) => {
     // Get all profiles
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
-      .select("user_id, is_premium, trial_ends_at, created_at")
+      .select("user_id, is_premium, trial_ends_at, created_at, full_name, phone")
       .order("created_at", { ascending: false });
 
     if (profilesError) throw profilesError;
