@@ -426,7 +426,7 @@ const Admin = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 min-w-0 flex-1">
                           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-display text-sm">
-                            {u.full_name !== "—" ? u.full_name.charAt(0).toUpperCase() : "#"}
+                            {u.full_name && u.full_name !== "—" ? u.full_name.charAt(0).toUpperCase() : "#"}
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-semibold text-sm text-foreground truncate">
