@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles } from "lucide-react";
+import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
