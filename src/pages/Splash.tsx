@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const PHRASES = [
   "ESCANEA. QUEMA. DOMINA.",
@@ -13,8 +14,16 @@ const Splash = () => {
   const [phraseIndex, setPhraseIndex] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => navigate("/login"), 3000);
-    return () => clearTimeout(timer);
+    // Check if user is already logged in
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        setTimeout(() => navigate("/login"), 3000);
+      }
+    };
+    checkSession();
   }, [navigate]);
 
   useEffect(() => {
