@@ -48,6 +48,8 @@ const Progress = () => {
   // Body fat estimation
   const [estimating, setEstimating] = useState(false);
   const [bodyFatResult, setBodyFatResult] = useState<BodyFatResult | null>(null);
+  const [compareAnalysis, setCompareAnalysis] = useState<string | null>(null);
+  const [analyzingCompare, setAnalyzingCompare] = useState(false);
   const [estimatingPhotoId, setEstimatingPhotoId] = useState<string | null>(null);
 
   const getWeekRange = (offset: number) => {
