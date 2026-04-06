@@ -14,16 +14,35 @@ export function useSubscription() {
 
     // First check Stripe subscription
     try {
-      const { data } = await supabase.functions.invoke("check-subscription");
-      if (data?.subscribed) {
-        const end = data.subscription_end ? new Date(data.subscription_end) : null;
-        const now = new Date();
-        if (end) {
-          const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          setDaysLeft(diff);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      
+      if (accessToken) {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-subscription`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            },
+          }
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.subscribed) {
+            const end = data.subscription_end ? new Date(data.subscription_end) : null;
+            const now = new Date();
+            if (end) {
+              const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+              setDaysLeft(diff);
+            }
+            setStatus("premium");
+            return;
+          }
         }
-        setStatus("premium");
-        return;
       }
     } catch {
       // Stripe check failed, fall back to DB check
