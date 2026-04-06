@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles } from "lucide-react";
+import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,6 +48,8 @@ const Progress = () => {
   // Body fat estimation
   const [estimating, setEstimating] = useState(false);
   const [bodyFatResult, setBodyFatResult] = useState<BodyFatResult | null>(null);
+  const [compareAnalysis, setCompareAnalysis] = useState<string | null>(null);
+  const [analyzingCompare, setAnalyzingCompare] = useState(false);
   const [estimatingPhotoId, setEstimatingPhotoId] = useState<string | null>(null);
 
   const getWeekRange = (offset: number) => {
@@ -245,6 +247,85 @@ const Progress = () => {
     setCompareMode(false);
     setCompareLeft(null);
     setCompareRight(null);
+    setCompareAnalysis(null);
+    setAnalyzingCompare(false);
+  };
+
+  const analyzeComparison = async () => {
+    if (!compareLeft || !compareRight) return;
+    setAnalyzingCompare(true);
+    setCompareAnalysis(null);
+    try {
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
+      const leftBf = compareLeft.body_fat_percent ? `${compareLeft.body_fat_percent}%` : "no estimado";
+      const rightBf = compareRight.body_fat_percent ? `${compareRight.body_fat_percent}%` : "no estimado";
+      const sexLabel = userProfile?.sex === "female" ? "mujer" : "hombre";
+      
+      const prompt = `Analiza estas dos fotos de progreso de un/a ${sexLabel}. 
+Foto ANTES (Semana ${compareLeft.week_number}, grasa corporal: ${leftBf}): ${compareLeft.photo_url}
+Foto DESPUÉS (Semana ${compareRight.week_number}, grasa corporal: ${rightBf}): ${compareRight.photo_url}
+
+Dame una reseña breve y motivadora (máximo 4-5 oraciones) explicando:
+1. Qué mejoras se observan (definición muscular, reducción de grasa, postura, etc.)
+2. Qué puntos podría mejorar para alcanzar una mejor estética
+Sé específico, profesional y motivador. No uses listas, escribe en párrafo fluido.`;
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: compareLeft.photo_url } },
+            { type: "image_url", image_url: { url: compareRight.photo_url } },
+          ] }],
+          userContext: {
+            sex: userProfile?.sex,
+            weight: userProfile?.weight_kg,
+            height: userProfile?.height_cm,
+          },
+        }),
+      });
+
+      if (!resp.ok) {
+        toast.error("Error al analizar la comparación");
+        return;
+      }
+
+      // Parse SSE stream
+      const reader = resp.body?.getReader();
+      if (!reader) return;
+      const decoder = new TextDecoder();
+      let fullText = "";
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                setCompareAnalysis(fullText);
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch {
+      toast.error("Error conectando con el coach");
+    } finally {
+      setAnalyzingCompare(false);
+    }
   };
 
   const week = getWeekRange(weekOffset);
@@ -386,6 +467,7 @@ const Progress = () => {
                 <div className="bg-background/80 px-2 py-1.5 text-center">
                   <p className="text-xs font-bold text-muted-foreground">ANTES</p>
                   <p className="text-[10px] text-primary">Semana {compareLeft.week_number}</p>
+                  {compareLeft.body_fat_percent && <p className="text-[10px] text-muted-foreground">{compareLeft.body_fat_percent}% grasa</p>}
                 </div>
               </div>
               <div className="overflow-hidden rounded-lg border border-primary/30">
@@ -393,8 +475,38 @@ const Progress = () => {
                 <div className="bg-primary/10 px-2 py-1.5 text-center">
                   <p className="text-xs font-bold text-primary">DESPUÉS</p>
                   <p className="text-[10px] text-foreground">Semana {compareRight.week_number}</p>
+                  {compareRight.body_fat_percent && <p className="text-[10px] text-muted-foreground">{compareRight.body_fat_percent}% grasa</p>}
                 </div>
               </div>
+            </div>
+
+            {/* Coach Analysis Button & Result */}
+            <div className="mt-4">
+              {!compareAnalysis && !analyzingCompare && (
+                <Button
+                  onClick={analyzeComparison}
+                  className="w-full gap-2 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20"
+                  variant="ghost"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Análisis del Coach
+                </Button>
+              )}
+              {analyzingCompare && !compareAnalysis && (
+                <div className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <p className="text-xs text-muted-foreground">El coach está analizando tu progreso...</p>
+                </div>
+              )}
+              {compareAnalysis && (
+                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-bold text-primary">COACH JOSÉ DÍAZ</p>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground">{compareAnalysis}</p>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}
