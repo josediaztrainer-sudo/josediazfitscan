@@ -467,6 +467,7 @@ Sé específico, profesional y motivador. No uses listas, escribe en párrafo fl
                 <div className="bg-background/80 px-2 py-1.5 text-center">
                   <p className="text-xs font-bold text-muted-foreground">ANTES</p>
                   <p className="text-[10px] text-primary">Semana {compareLeft.week_number}</p>
+                  {compareLeft.body_fat_percent && <p className="text-[10px] text-muted-foreground">{compareLeft.body_fat_percent}% grasa</p>}
                 </div>
               </div>
               <div className="overflow-hidden rounded-lg border border-primary/30">
@@ -474,8 +475,38 @@ Sé específico, profesional y motivador. No uses listas, escribe en párrafo fl
                 <div className="bg-primary/10 px-2 py-1.5 text-center">
                   <p className="text-xs font-bold text-primary">DESPUÉS</p>
                   <p className="text-[10px] text-foreground">Semana {compareRight.week_number}</p>
+                  {compareRight.body_fat_percent && <p className="text-[10px] text-muted-foreground">{compareRight.body_fat_percent}% grasa</p>}
                 </div>
               </div>
+            </div>
+
+            {/* Coach Analysis Button & Result */}
+            <div className="mt-4">
+              {!compareAnalysis && !analyzingCompare && (
+                <Button
+                  onClick={analyzeComparison}
+                  className="w-full gap-2 bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20"
+                  variant="ghost"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Análisis del Coach
+                </Button>
+              )}
+              {analyzingCompare && !compareAnalysis && (
+                <div className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <p className="text-xs text-muted-foreground">El coach está analizando tu progreso...</p>
+                </div>
+              )}
+              {compareAnalysis && (
+                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <p className="text-xs font-bold text-primary">COACH JOSÉ DÍAZ</p>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground">{compareAnalysis}</p>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}
