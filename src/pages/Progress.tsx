@@ -247,6 +247,85 @@ const Progress = () => {
     setCompareMode(false);
     setCompareLeft(null);
     setCompareRight(null);
+    setCompareAnalysis(null);
+    setAnalyzingCompare(false);
+  };
+
+  const analyzeComparison = async () => {
+    if (!compareLeft || !compareRight) return;
+    setAnalyzingCompare(true);
+    setCompareAnalysis(null);
+    try {
+      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/coach-chat`;
+      const leftBf = compareLeft.body_fat_percent ? `${compareLeft.body_fat_percent}%` : "no estimado";
+      const rightBf = compareRight.body_fat_percent ? `${compareRight.body_fat_percent}%` : "no estimado";
+      const sexLabel = userProfile?.sex === "female" ? "mujer" : "hombre";
+      
+      const prompt = `Analiza estas dos fotos de progreso de un/a ${sexLabel}. 
+Foto ANTES (Semana ${compareLeft.week_number}, grasa corporal: ${leftBf}): ${compareLeft.photo_url}
+Foto DESPUÉS (Semana ${compareRight.week_number}, grasa corporal: ${rightBf}): ${compareRight.photo_url}
+
+Dame una reseña breve y motivadora (máximo 4-5 oraciones) explicando:
+1. Qué mejoras se observan (definición muscular, reducción de grasa, postura, etc.)
+2. Qué puntos podría mejorar para alcanzar una mejor estética
+Sé específico, profesional y motivador. No uses listas, escribe en párrafo fluido.`;
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: [
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: compareLeft.photo_url } },
+            { type: "image_url", image_url: { url: compareRight.photo_url } },
+          ] }],
+          userContext: {
+            sex: userProfile?.sex,
+            weight: userProfile?.weight_kg,
+            height: userProfile?.height_cm,
+          },
+        }),
+      });
+
+      if (!resp.ok) {
+        toast.error("Error al analizar la comparación");
+        return;
+      }
+
+      // Parse SSE stream
+      const reader = resp.body?.getReader();
+      if (!reader) return;
+      const decoder = new TextDecoder();
+      let fullText = "";
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                setCompareAnalysis(fullText);
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch {
+      toast.error("Error conectando con el coach");
+    } finally {
+      setAnalyzingCompare(false);
+    }
   };
 
   const week = getWeekRange(weekOffset);
