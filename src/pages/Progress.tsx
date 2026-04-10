@@ -609,6 +609,16 @@ Sé específico, profesional y motivador. No uses listas, escribe en párrafo fl
             </div>
           )}
         </motion.div>
+          </TabsContent>
+
+          <TabsContent value="measurements">
+            {user && <BodyMeasurementsTracker userId={user.id} />}
+          </TabsContent>
+
+          <TabsContent value="evaluation">
+            {user && <InitialEvaluationForm userId={user.id} />}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Photo detail modal with body fat estimation */}
