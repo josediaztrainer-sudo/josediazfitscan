@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
-import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare } from "lucide-react";
+import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare, Ruler, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import profileBg from "@/assets/profile-bg.jpg";
+import BodyMeasurementsTracker from "@/components/BodyMeasurementsTracker";
+import InitialEvaluationForm from "@/components/InitialEvaluationForm";
 
 type ProgressPhoto = {
   id: string;
