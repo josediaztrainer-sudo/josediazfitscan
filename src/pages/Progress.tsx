@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
-import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare } from "lucide-react";
+import { Camera, Trash2, Loader2, TrendingUp, ImagePlus, ChevronLeft, ChevronRight, ArrowLeftRight, Percent, Sparkles, MessageSquare, Ruler, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import profileBg from "@/assets/profile-bg.jpg";
+import BodyMeasurementsTracker from "@/components/BodyMeasurementsTracker";
+import InitialEvaluationForm from "@/components/InitialEvaluationForm";
 
 type ProgressPhoto = {
   id: string;
@@ -358,9 +361,16 @@ Sé específico, profesional y motivador. No uses listas, escribe en párrafo fl
 
       <div className="relative z-10 px-4 pt-8">
         <h1 className="mb-2 font-display text-3xl tracking-wider text-primary text-glow">MI PROGRESO</h1>
-        <p className="mb-6 text-sm text-muted-foreground">Tu transformación semana a semana 💪</p>
+        <p className="mb-4 text-sm text-muted-foreground">Tu transformación semana a semana 💪</p>
 
-        {/* Weekly Calories Chart */}
+        <Tabs defaultValue="photos" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="photos" className="text-xs gap-1"><Camera className="h-3.5 w-3.5" />Fotos</TabsTrigger>
+            <TabsTrigger value="measurements" className="text-xs gap-1"><Ruler className="h-3.5 w-3.5" />Medidas</TabsTrigger>
+            <TabsTrigger value="evaluation" className="text-xs gap-1"><ClipboardList className="h-3.5 w-3.5" />Evaluación</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="photos">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 rounded-lg border border-border bg-card/90 backdrop-blur-sm p-4">
           <div className="mb-3 flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
@@ -599,6 +609,16 @@ Sé específico, profesional y motivador. No uses listas, escribe en párrafo fl
             </div>
           )}
         </motion.div>
+          </TabsContent>
+
+          <TabsContent value="measurements">
+            {user && <BodyMeasurementsTracker userId={user.id} />}
+          </TabsContent>
+
+          <TabsContent value="evaluation">
+            {user && <InitialEvaluationForm userId={user.id} />}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Photo detail modal with body fat estimation */}
