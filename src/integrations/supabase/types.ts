@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_measurements: {
+        Row: {
+          arm_cm: number | null
+          body_fat_percent: number | null
+          calf_cm: number | null
+          chest_cm: number | null
+          created_at: string
+          date: string
+          hip_cm: number | null
+          id: string
+          muscle_mass_kg: number | null
+          notes: string | null
+          thigh_cm: number | null
+          updated_at: string
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          arm_cm?: number | null
+          body_fat_percent?: number | null
+          calf_cm?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          date?: string
+          hip_cm?: number | null
+          id?: string
+          muscle_mass_kg?: number | null
+          notes?: string | null
+          thigh_cm?: number | null
+          updated_at?: string
+          user_id: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          arm_cm?: number | null
+          body_fat_percent?: number | null
+          calf_cm?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          date?: string
+          hip_cm?: number | null
+          id?: string
+          muscle_mass_kg?: number | null
+          notes?: string | null
+          thigh_cm?: number | null
+          updated_at?: string
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       coach_conversations: {
         Row: {
           created_at: string
@@ -104,6 +158,60 @@ export type Database = {
           total_carbs?: number
           total_fat?: number
           total_protein?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      initial_evaluations: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          daily_water_liters: number | null
+          experience_level: string | null
+          food_allergies: string | null
+          id: string
+          injuries: string | null
+          medical_restrictions: string | null
+          medications: string | null
+          objectives: string | null
+          sleep_hours: number | null
+          sports_history: string | null
+          stress_level: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          daily_water_liters?: number | null
+          experience_level?: string | null
+          food_allergies?: string | null
+          id?: string
+          injuries?: string | null
+          medical_restrictions?: string | null
+          medications?: string | null
+          objectives?: string | null
+          sleep_hours?: number | null
+          sports_history?: string | null
+          stress_level?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          daily_water_liters?: number | null
+          experience_level?: string | null
+          food_allergies?: string | null
+          id?: string
+          injuries?: string | null
+          medical_restrictions?: string | null
+          medications?: string | null
+          objectives?: string | null
+          sleep_hours?: number | null
+          sports_history?: string | null
+          stress_level?: string | null
           updated_at?: string
           user_id?: string
         }
