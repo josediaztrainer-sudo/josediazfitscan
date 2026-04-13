@@ -5,7 +5,6 @@ const tabs = [
   { path: "/dashboard", icon: Home, label: "Home" },
   { path: "/scan", icon: ScanLine, label: "Escanear" },
   { path: "/coach", icon: MessageCircle, label: "Coach" },
-  { path: "/progress", icon: TrendingUp, label: "Progreso" },
   { path: "/profile", icon: User, label: "Perfil" },
 ];
 

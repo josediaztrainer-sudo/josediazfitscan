@@ -23,7 +23,7 @@ import TrialExpirationNotifier from "./components/TrialExpirationNotifier";
 
 const queryClient = new QueryClient();
 
-const TABS = ["/dashboard", "/scan", "/coach", "/progress", "/profile"];
+const TABS = ["/dashboard", "/scan", "/coach", "/profile"];
 
 const AppLayout = () => {
   const location = useLocation();
