@@ -25,6 +25,7 @@ export type Database = {
           hip_cm: number | null
           id: string
           muscle_mass_kg: number | null
+          neck_cm: number | null
           notes: string | null
           thigh_cm: number | null
           updated_at: string
@@ -42,6 +43,7 @@ export type Database = {
           hip_cm?: number | null
           id?: string
           muscle_mass_kg?: number | null
+          neck_cm?: number | null
           notes?: string | null
           thigh_cm?: number | null
           updated_at?: string
@@ -59,6 +61,7 @@ export type Database = {
           hip_cm?: number | null
           id?: string
           muscle_mass_kg?: number | null
+          neck_cm?: number | null
           notes?: string | null
           thigh_cm?: number | null
           updated_at?: string
