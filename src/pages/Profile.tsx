@@ -11,6 +11,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { motion } from "framer-motion";
 import profileBg from "@/assets/profile-bg.jpg";
 import ReferralSection from "@/components/ReferralSection";
+import WeeklyCheckIn from "@/components/WeeklyCheckIn";
 
 const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; emoji: string }[] = [
   { value: "sedentary", label: "Sedentario", emoji: "🪑" },
