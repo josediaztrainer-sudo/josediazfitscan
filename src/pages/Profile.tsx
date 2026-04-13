@@ -312,6 +312,11 @@ const Profile = () => {
             </motion.div>
           )}
 
+          {/* Weekly Check-In */}
+          {user && hasValidData && (
+            <WeeklyCheckIn userId={user.id} sex={sex} heightCm={Number(height)} />
+          )}
+
           {/* Referral section */}
           <ReferralSection />
 
