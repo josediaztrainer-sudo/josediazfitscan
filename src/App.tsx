@@ -14,6 +14,7 @@ import Paywall from "./pages/Paywall";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Progress from "./pages/Progress";
+import MyRoutine from "./pages/MyRoutine";
 import Install from "./pages/Install";
 import ResetPassword from "./pages/ResetPassword";
 import Privacy from "./pages/Privacy";
@@ -23,7 +24,7 @@ import TrialExpirationNotifier from "./components/TrialExpirationNotifier";
 
 const queryClient = new QueryClient();
 
-const TABS = ["/dashboard", "/scan", "/coach", "/profile"];
+const TABS = ["/dashboard", "/scan", "/my-routine", "/coach", "/profile"];
 
 const AppLayout = () => {
   const location = useLocation();
@@ -39,6 +40,7 @@ const AppLayout = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scan" element={<ProtectedFeature><Scan /></ProtectedFeature>} />
         <Route path="/coach" element={<ProtectedFeature><Coach /></ProtectedFeature>} />
+        <Route path="/my-routine" element={<ProtectedFeature><MyRoutine /></ProtectedFeature>} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/paywall" element={<Paywall />} />
