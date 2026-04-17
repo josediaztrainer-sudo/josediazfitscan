@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, ScanLine, MessageCircle, TrendingUp, User } from "lucide-react";
+import { Home, ScanLine, Dumbbell, MessageCircle, User } from "lucide-react";
 
 const tabs = [
   { path: "/dashboard", icon: Home, label: "Home" },
   { path: "/scan", icon: ScanLine, label: "Escanear" },
+  { path: "/my-routine", icon: Dumbbell, label: "Mi Rutina" },
   { path: "/coach", icon: MessageCircle, label: "Coach" },
   { path: "/profile", icon: User, label: "Perfil" },
 ];
