@@ -1,19 +1,21 @@
 import { useEffect, useRef } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 
 const STORAGE_KEY = "trial_notification_shown";
+const WHATSAPP_URL = "https://wa.me/message/M5LVYI64RN2GD1";
+
+const openWhatsApp = () => {
+  window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+};
 
 const TrialExpirationNotifier = () => {
   const { status, daysLeft } = useSubscription();
-  const navigate = useNavigate();
   const hasShown = useRef(false);
 
   useEffect(() => {
     if (hasShown.current || status === "loading" || status === "premium") return;
 
-    // Only notify for trial users or expired
     const today = new Date().toDateString();
     const lastShown = localStorage.getItem(STORAGE_KEY);
     if (lastShown === today) return;
@@ -23,33 +25,33 @@ const TrialExpirationNotifier = () => {
 
     if (status === "expired") {
       toast.error("Tu prueba gratuita ha expirado", {
-        description: "Hazte Premium para seguir usando todas las funciones 💪",
-        duration: 8000,
+        description: "Adquiere tu plan mensual por WhatsApp para seguir usando la app 💪",
+        duration: 10000,
         action: {
-          label: "VER PLANES",
-          onClick: () => navigate("/paywall"),
+          label: "WHATSAPP",
+          onClick: openWhatsApp,
         },
       });
     } else if (daysLeft <= 1) {
       toast.warning("¡Tu prueba expira hoy!", {
-        description: "Activa Premium ahora para no perder acceso 🔥",
-        duration: 8000,
+        description: "Activa tu plan Premium por WhatsApp ahora 🔥",
+        duration: 10000,
         action: {
-          label: "ACTIVAR",
-          onClick: () => navigate("/paywall"),
+          label: "WHATSAPP",
+          onClick: openWhatsApp,
         },
       });
     } else if (daysLeft <= 3) {
       toast.info(`Te quedan ${daysLeft} días de prueba`, {
-        description: "Aprovecha y hazte Premium antes de que expire ⏰",
-        duration: 6000,
+        description: "Adquiere tu plan mensual por WhatsApp antes de que expire ⏰",
+        duration: 8000,
         action: {
-          label: "VER PLANES",
-          onClick: () => navigate("/paywall"),
+          label: "WHATSAPP",
+          onClick: openWhatsApp,
         },
       });
     }
-  }, [status, daysLeft, navigate]);
+  }, [status, daysLeft]);
 
   return null;
 };
