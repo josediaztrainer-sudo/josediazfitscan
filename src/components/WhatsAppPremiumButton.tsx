@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const WHATSAPP_URL = "https://wa.me/message/M5LVYI64RN2GD1";
+const WHATSAPP_URL = `https://wa.me/message/M5LVYI64RN2GD1?text=${encodeURIComponent("Hola José, quisiera activar mi plan Premium!")}`;
 
 const WhatsAppPremiumButton = () => {
   return (
