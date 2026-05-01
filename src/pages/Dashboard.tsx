@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Flame, Drumstick, Wheat, Droplets, Crown, Clock, UtensilsCrossed, ChevronDown, ChevronUp, Trash2, AlertTriangle } from "lucide-react";
 import DietPlanGenerator from "@/components/DietPlanGenerator";
+import HydrationTracker from "@/components/HydrationTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -154,6 +155,9 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Hydration Tracker */}
+      <HydrationTracker />
 
       {/* Diet Plan Generator */}
       <DietPlanGenerator
