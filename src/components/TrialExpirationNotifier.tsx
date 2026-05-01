@@ -3,7 +3,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 
 const STORAGE_KEY = "trial_notification_shown";
-const WHATSAPP_URL = "https://wa.me/message/M5LVYI64RN2GD1";
+const WHATSAPP_URL = `https://wa.me/message/M5LVYI64RN2GD1?text=${encodeURIComponent("Hola José, quisiera activar mi plan Premium!")}`;
 
 const openWhatsApp = () => {
   window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
