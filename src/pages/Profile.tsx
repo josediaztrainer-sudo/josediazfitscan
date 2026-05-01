@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import profileBg from "@/assets/profile-bg.jpg";
 import ReferralSection from "@/components/ReferralSection";
 import WeeklyCheckIn from "@/components/WeeklyCheckIn";
+import WhatsAppPremiumButton from "@/components/WhatsAppPremiumButton";
 
 const ACTIVITY_OPTIONS: { value: ActivityLevel; label: string; emoji: string }[] = [
   { value: "sedentary", label: "Sedentario", emoji: "🪑" },
@@ -142,6 +143,7 @@ const Profile = () => {
         {/* Premium Banner */}
         <ProfilePremiumBanner />
         <ProfileSubscriptionManager />
+        <WhatsAppPremiumButton />
 
         <h1 className="mb-6 font-display text-3xl tracking-wider text-primary text-glow">
           MI PERFIL
