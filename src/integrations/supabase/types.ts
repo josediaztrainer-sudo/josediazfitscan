@@ -513,6 +513,36 @@ export type Database = {
         }
         Relationships: []
       }
+      water_logs: {
+        Row: {
+          consumed_ml: number
+          created_at: string
+          date: string
+          goal_ml: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consumed_ml?: number
+          created_at?: string
+          date?: string
+          goal_ml?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consumed_ml?: number
+          created_at?: string
+          date?: string
+          goal_ml?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
