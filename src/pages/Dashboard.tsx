@@ -156,6 +156,9 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Hydration Tracker */}
+      <HydrationTracker />
+
       {/* Diet Plan Generator */}
       <DietPlanGenerator
         targetCalories={target.calories}
